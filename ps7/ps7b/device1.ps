@@ -1,0 +1,2519 @@
+%!PS-Adobe-3.0
+%%BoundingBox: 50 50 562 742
+%%Title: Enscript Output
+%%Creator: GNU Enscript 1.6.5.90
+%%CreationDate: Mon Apr 24 20:04:40 2017
+%%Orientation: Portrait
+%%Pages: (atend)
+%%DocumentMedia: Letter 612 792 0 () ()
+%%DocumentNeededResources: (atend)
+%%EndComments
+%%BeginProlog
+%%BeginResource: procset Enscript-Prolog 1.6.5 90
+%
+% Procedures.
+%
+
+/_S {	% save current state
+  /_s save def
+} def
+/_R {	% restore from saved state
+  _s restore
+} def
+
+/S {	% showpage protecting gstate
+  gsave
+  showpage
+  grestore
+} bind def
+
+/MF {	% fontname newfontname -> -	make a new encoded font
+  /newfontname exch def
+  /fontname exch def
+
+  /fontdict fontname findfont def
+  /newfont fontdict maxlength dict def
+
+  fontdict {
+    exch
+    dup /FID eq {
+      % skip FID pair
+      pop pop
+    } {
+      % copy to the new font dictionary
+      exch newfont 3 1 roll put
+    } ifelse
+  } forall
+
+  newfont /FontName newfontname put
+
+  % insert only valid encoding vectors
+  encoding_vector length 256 eq {
+    newfont /Encoding encoding_vector put
+  } if
+
+  newfontname newfont definefont pop
+} def
+
+/MF_PS { % fontname newfontname -> -	make a new font preserving its enc
+  /newfontname exch def
+  /fontname exch def
+
+  /fontdict fontname findfont def
+  /newfont fontdict maxlength dict def
+
+  fontdict {
+    exch
+    dup /FID eq {
+      % skip FID pair
+      pop pop
+    } {
+      % copy to the new font dictionary
+      exch newfont 3 1 roll put
+    } ifelse
+  } forall
+
+  newfont /FontName newfontname put
+
+  newfontname newfont definefont pop
+} def
+
+/SF { % fontname width height -> -	set a new font
+  /height exch def
+  /width exch def
+
+  findfont
+  [width 0 0 height 0 0] makefont setfont
+} def
+
+/SUF { % fontname width height -> -	set a new user font
+  /height exch def
+  /width exch def
+
+  /F-gs-user-font MF
+  /F-gs-user-font width height SF
+} def
+
+/SUF_PS { % fontname width height -> -	set a new user font preserving its enc
+  /height exch def
+  /width exch def
+
+  /F-gs-user-font MF_PS
+  /F-gs-user-font width height SF
+} def
+
+/M {moveto} bind def
+/s {show} bind def
+
+/Box {	% x y w h -> -			define box path
+  /d_h exch def /d_w exch def /d_y exch def /d_x exch def
+  d_x d_y  moveto
+  d_w 0 rlineto
+  0 d_h rlineto
+  d_w neg 0 rlineto
+  closepath
+} def
+
+/bgs {	% x y height blskip gray str -> -	show string with bg color
+  /str exch def
+  /gray exch def
+  /blskip exch def
+  /height exch def
+  /y exch def
+  /x exch def
+
+  gsave
+    x y blskip sub str stringwidth pop height Box
+    gray setgray
+    fill
+  grestore
+  x y M str s
+} def
+
+/bgcs { % x y height blskip red green blue str -> -  show string with bg color
+  /str exch def
+  /blue exch def
+  /green exch def
+  /red exch def
+  /blskip exch def
+  /height exch def
+  /y exch def
+  /x exch def
+
+  gsave
+    x y blskip sub str stringwidth pop height Box
+    red green blue setrgbcolor
+    fill
+  grestore
+  x y M str s
+} def
+
+% Highlight bars.
+/highlight_bars {	% nlines lineheight output_y_margin gray -> -
+  gsave
+    setgray
+    /ymarg exch def
+    /lineheight exch def
+    /nlines exch def
+
+    % This 2 is just a magic number to sync highlight lines to text.
+    0 d_header_y ymarg sub 2 sub translate
+
+    /cw d_output_w cols div def
+    /nrows d_output_h ymarg 2 mul sub lineheight div cvi def
+
+    % for each column
+    0 1 cols 1 sub {
+      cw mul /xp exch def
+
+      % for each rows
+      0 1 nrows 1 sub {
+        /rn exch def
+        rn lineheight mul neg /yp exch def
+        rn nlines idiv 2 mod 0 eq {
+	  % Draw highlight bar.  4 is just a magic indentation.
+	  xp 4 add yp cw 8 sub lineheight neg Box fill
+	} if
+      } for
+    } for
+
+  grestore
+} def
+
+% Line highlight bar.
+/line_highlight {	% x y width height gray -> -
+  gsave
+    /gray exch def
+    Box gray setgray fill
+  grestore
+} def
+
+% Column separator lines.
+/column_lines {
+  gsave
+    .1 setlinewidth
+    0 d_footer_h translate
+    /cw d_output_w cols div def
+    1 1 cols 1 sub {
+      cw mul 0 moveto
+      0 d_output_h rlineto stroke
+    } for
+  grestore
+} def
+
+% Column borders.
+/column_borders {
+  gsave
+    .1 setlinewidth
+    0 d_footer_h moveto
+    0 d_output_h rlineto
+    d_output_w 0 rlineto
+    0 d_output_h neg rlineto
+    closepath stroke
+  grestore
+} def
+
+% Do the actual underlay drawing
+/draw_underlay {
+  ul_style 0 eq {
+    ul_str true charpath stroke
+  } {
+    ul_str show
+  } ifelse
+} def
+
+% Underlay
+/underlay {	% - -> -
+  gsave
+    0 d_page_h translate
+    d_page_h neg d_page_w atan rotate
+
+    ul_gray setgray
+    ul_font setfont
+    /dw d_page_h dup mul d_page_w dup mul add sqrt def
+    ul_str stringwidth pop dw exch sub 2 div ul_h_ptsize -2 div moveto
+    draw_underlay
+  grestore
+} def
+
+/user_underlay {	% - -> -
+  gsave
+    ul_x ul_y translate
+    ul_angle rotate
+    ul_gray setgray
+    ul_font setfont
+    0 0 ul_h_ptsize 2 div sub moveto
+    draw_underlay
+  grestore
+} def
+
+% Page prefeed
+/page_prefeed {		% bool -> -
+  statusdict /prefeed known {
+    statusdict exch /prefeed exch put
+  } {
+    pop
+  } ifelse
+} def
+
+% Wrapped line markers
+/wrapped_line_mark {	% x y charwith charheight type -> -
+  /type exch def
+  /h exch def
+  /w exch def
+  /y exch def
+  /x exch def
+
+  type 2 eq {
+    % Black boxes (like TeX does)
+    gsave
+      0 setlinewidth
+      x w 4 div add y M
+      0 h rlineto w 2 div 0 rlineto 0 h neg rlineto
+      closepath fill
+    grestore
+  } {
+    type 3 eq {
+      % Small arrows
+      gsave
+        .2 setlinewidth
+        x w 2 div add y h 2 div add M
+        w 4 div 0 rlineto
+        x w 4 div add y lineto stroke
+
+        x w 4 div add w 8 div add y h 4 div add M
+        x w 4 div add y lineto
+	w 4 div h 8 div rlineto stroke
+      grestore
+    } {
+      % do nothing
+    } ifelse
+  } ifelse
+} def
+
+% EPSF import.
+
+/BeginEPSF {
+  /b4_Inc_state save def    		% Save state for cleanup
+  /dict_count countdictstack def	% Count objects on dict stack
+  /op_count count 1 sub def		% Count objects on operand stack
+  userdict begin
+  /showpage { } def
+  0 setgray 0 setlinecap
+  1 setlinewidth 0 setlinejoin
+  10 setmiterlimit [ ] 0 setdash newpath
+  /languagelevel where {
+    pop languagelevel
+    1 ne {
+      false setstrokeadjust false setoverprint
+    } if
+  } if
+} bind def
+
+/EndEPSF {
+  count op_count sub { pos } repeat	% Clean up stacks
+  countdictstack dict_count sub { end } repeat
+  b4_Inc_state restore
+} bind def
+
+% Check PostScript language level.
+/languagelevel where {
+  pop /gs_languagelevel languagelevel def
+} {
+  /gs_languagelevel 1 def
+} ifelse
+%%EndResource
+%%BeginResource: procset Enscript-Encoding-88591 1.6.5 90
+/encoding_vector [
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/space        	/exclam       	/quotedbl     	/numbersign   	
+/dollar       	/percent      	/ampersand    	/quoteright   	
+/parenleft    	/parenright   	/asterisk     	/plus         	
+/comma        	/hyphen       	/period       	/slash        	
+/zero         	/one          	/two          	/three        	
+/four         	/five         	/six          	/seven        	
+/eight        	/nine         	/colon        	/semicolon    	
+/less         	/equal        	/greater      	/question     	
+/at           	/A            	/B            	/C            	
+/D            	/E            	/F            	/G            	
+/H            	/I            	/J            	/K            	
+/L            	/M            	/N            	/O            	
+/P            	/Q            	/R            	/S            	
+/T            	/U            	/V            	/W            	
+/X            	/Y            	/Z            	/bracketleft  	
+/backslash    	/bracketright 	/asciicircum  	/underscore   	
+/quoteleft    	/a            	/b            	/c            	
+/d            	/e            	/f            	/g            	
+/h            	/i            	/j            	/k            	
+/l            	/m            	/n            	/o            	
+/p            	/q            	/r            	/s            	
+/t            	/u            	/v            	/w            	
+/x            	/y            	/z            	/braceleft    	
+/bar          	/braceright   	/tilde        	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/space        	/exclamdown   	/cent         	/sterling     	
+/currency     	/yen          	/brokenbar    	/section      	
+/dieresis     	/copyright    	/ordfeminine  	/guillemotleft	
+/logicalnot   	/hyphen       	/registered   	/macron       	
+/degree       	/plusminus    	/twosuperior  	/threesuperior	
+/acute        	/mu           	/paragraph    	/bullet       	
+/cedilla      	/onesuperior  	/ordmasculine 	/guillemotright	
+/onequarter   	/onehalf      	/threequarters	/questiondown 	
+/Agrave       	/Aacute       	/Acircumflex  	/Atilde       	
+/Adieresis    	/Aring        	/AE           	/Ccedilla     	
+/Egrave       	/Eacute       	/Ecircumflex  	/Edieresis    	
+/Igrave       	/Iacute       	/Icircumflex  	/Idieresis    	
+/Eth          	/Ntilde       	/Ograve       	/Oacute       	
+/Ocircumflex  	/Otilde       	/Odieresis    	/multiply     	
+/Oslash       	/Ugrave       	/Uacute       	/Ucircumflex  	
+/Udieresis    	/Yacute       	/Thorn        	/germandbls   	
+/agrave       	/aacute       	/acircumflex  	/atilde       	
+/adieresis    	/aring        	/ae           	/ccedilla     	
+/egrave       	/eacute       	/ecircumflex  	/edieresis    	
+/igrave       	/iacute       	/icircumflex  	/idieresis    	
+/eth          	/ntilde       	/ograve       	/oacute       	
+/ocircumflex  	/otilde       	/odieresis    	/divide       	
+/oslash       	/ugrave       	/uacute       	/ucircumflex  	
+/udieresis    	/yacute       	/thorn        	/ydieresis    	
+] def
+%%EndResource
+%%EndProlog
+%%BeginSetup
+%%IncludeResource: font Courier-Bold
+%%IncludeResource: font Courier
+/HFpt_w 10 def
+/HFpt_h 10 def
+/Courier-Bold /HF-gs-font MF
+/HF /HF-gs-font findfont [HFpt_w 0 0 HFpt_h 0 0] makefont def
+/Courier /F-gs-font MF
+/F-gs-font 10 10 SF
+/#copies 1 def
+% Pagedevice definitions:
+gs_languagelevel 1 gt {
+  <<
+    /PageSize [612 792] 
+  >> setpagedevice
+} if
+%%BeginResource: procset Enscript-Header-simple 1.6.5 90
+
+/do_header {	% print default simple header
+  gsave
+    d_header_x d_header_y HFpt_h 3 div add translate
+
+    HF setfont
+    user_header_p {
+      5 0 moveto user_header_left_str show
+
+      d_header_w user_header_center_str stringwidth pop sub 2 div
+      0 moveto user_header_center_str show
+
+      d_header_w user_header_right_str stringwidth pop sub 5 sub
+      0 moveto user_header_right_str show
+    } {
+      5 0 moveto fname show
+      45 0 rmoveto fmodstr show
+      45 0 rmoveto pagenumstr show
+    } ifelse
+
+  grestore
+} def
+%%EndResource
+/d_page_w 512 def
+/d_page_h 692 def
+/d_header_x 0 def
+/d_header_y 677 def
+/d_header_w 512 def
+/d_header_h 15 def
+/d_footer_x 0 def
+/d_footer_y 0 def
+/d_footer_w 512 def
+/d_footer_h 0 def
+/d_output_w 512 def
+/d_output_h 677 def
+/cols 1 def
+%%EndSetup
+%%Page: (1) 1
+%%BeginPageSetup
+_S
+50 50 translate
+/pagenum 1 def
+/fname (device1_intouch.log.rpt) def
+/fdir (.) def
+/ftail (device1_intouch.log.rpt) def
+% User defined strings:
+/fmodstr (Tue Apr 18 16:00:52 2017) def
+/pagenumstr (1) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+do_header
+30 664 M (1:) s
+48 664 M
+(=== Device boot ===) s
+30 653 M (2:) s
+48 653 M
+(435369\(device1_intouch.log\): 2014-03-25 19:11:59 Boot Start) s
+30 642 M (3:) s
+48 642 M
+(435759\(device1_intouch.log\): 2014-03-25 19:15:02 Boot Completed) s
+30 631 M (4:) s
+48 631 M
+(        Boot Time: 183000ms) s
+30 620 M (5:) s
+30 609 M (6:) s
+48 609 M
+(Services) s
+30 598 M (7:) s
+48 598 M
+(        Logging) s
+30 587 M (8:) s
+48 587 M
+(                Start: 435386\(device1_intouch.log\)) s
+30 576 M (9:) s
+48 576 M
+(                Completed: 435387\(device1_intouch.log\)) s
+24 565 M (10:) s
+48 565 M
+(                Elapsed Time: 346 ms) s
+24 554 M (11:) s
+48 554 M
+(        DatabaseInitialize) s
+24 543 M (12:) s
+48 543 M
+(                Start: 435388\(device1_intouch.log\)) s
+24 532 M (13:) s
+48 532 M
+(                Completed: 435412\(device1_intouch.log\)) s
+24 521 M (14:) s
+48 521 M
+(                Elapsed Time: 33139 ms) s
+24 510 M (15:) s
+48 510 M
+(        MessagingService) s
+24 499 M (16:) s
+48 499 M
+(                Start: 435413\(device1_intouch.log\)) s
+24 488 M (17:) s
+48 488 M
+(                Completed: 435415\(device1_intouch.log\)) s
+24 477 M (18:) s
+48 477 M
+(                Elapsed Time: 8663 ms) s
+24 466 M (19:) s
+48 466 M
+(        HealthMonitorService) s
+24 455 M (20:) s
+48 455 M
+(                Start: 435538\(device1_intouch.log\)) s
+24 444 M (21:) s
+48 444 M
+(                Completed: 435539\(device1_intouch.log\)) s
+24 433 M (22:) s
+48 433 M
+(                Elapsed Time: 239 ms) s
+24 422 M (23:) s
+48 422 M
+(        Persistence) s
+24 411 M (24:) s
+48 411 M
+(                Start: 435540\(device1_intouch.log\)) s
+24 400 M (25:) s
+48 400 M
+(                Completed: 435541\(device1_intouch.log\)) s
+24 389 M (26:) s
+48 389 M
+(                Elapsed Time: 23466 ms) s
+24 378 M (27:) s
+48 378 M
+(        ConfigurationService) s
+24 367 M (28:) s
+48 367 M
+(                Start: 435542\(device1_intouch.log\)) s
+24 356 M (29:) s
+48 356 M
+(                Completed: 435543\(device1_intouch.log\)) s
+24 345 M (30:) s
+48 345 M
+(                Elapsed Time: 0 ms) s
+24 334 M (31:) s
+48 334 M
+(        LandingPadService) s
+24 323 M (32:) s
+48 323 M
+(                Start: 435554\(device1_intouch.log\)) s
+24 312 M (33:) s
+48 312 M
+(                Completed: 435555\(device1_intouch.log\)) s
+24 301 M (34:) s
+48 301 M
+(                Elapsed Time: 2 ms) s
+24 290 M (35:) s
+48 290 M
+(        PortConfigurationService) s
+24 279 M (36:) s
+48 279 M
+(                Start: 435544\(device1_intouch.log\)) s
+24 268 M (37:) s
+48 268 M
+(                Completed: 435545\(device1_intouch.log\)) s
+24 257 M (38:) s
+48 257 M
+(                Elapsed Time: 100 ms) s
+24 246 M (39:) s
+48 246 M
+(        CacheService) s
+24 235 M (40:) s
+48 235 M
+(                Start: 435556\(device1_intouch.log\)) s
+24 224 M (41:) s
+48 224 M
+(                Completed: 435557\(device1_intouch.log\)) s
+24 213 M (42:) s
+48 213 M
+(                Elapsed Time: 1413 ms) s
+24 202 M (43:) s
+48 202 M
+(        ThemingService) s
+24 191 M (44:) s
+48 191 M
+(                Start: 435552\(device1_intouch.log\)) s
+24 180 M (45:) s
+48 180 M
+(                Completed: 435553\(device1_intouch.log\)) s
+24 169 M (46:) s
+48 169 M
+(                Elapsed Time: 1 ms) s
+24 158 M (47:) s
+48 158 M
+(        StagingService) s
+24 147 M (48:) s
+48 147 M
+(                Start: 435558\(device1_intouch.log\)) s
+24 136 M (49:) s
+48 136 M
+(                Completed: 435576\(device1_intouch.log\)) s
+24 125 M (50:) s
+48 125 M
+(                Elapsed Time: 8816 ms) s
+24 114 M (51:) s
+48 114 M
+(        DeviceIOService) s
+24 103 M (52:) s
+48 103 M
+(                Start: 435546\(device1_intouch.log\)) s
+24 92 M (53:) s
+48 92 M
+(                Completed: 435551\(device1_intouch.log\)) s
+24 81 M (54:) s
+48 81 M
+(                Elapsed Time: 48 ms) s
+24 70 M (55:) s
+48 70 M
+(        BellService) s
+24 59 M (56:) s
+48 59 M
+(                Start: 435634\(device1_intouch.log\)) s
+24 48 M (57:) s
+48 48 M
+(                Completed: 435637\(device1_intouch.log\)) s
+24 37 M (58:) s
+48 37 M
+(                Elapsed Time: 207 ms) s
+24 26 M (59:) s
+48 26 M
+(        GateService) s
+24 15 M (60:) s
+48 15 M
+(                Start: 435640\(device1_intouch.log\)) s
+24 4 M (61:) s
+48 4 M
+(                Completed: 435643\(device1_intouch.log\)) s
+_R
+S
+%%Page: (2) 2
+%%BeginPageSetup
+_S
+50 50 translate
+/pagenum 2 def
+/fname (device1_intouch.log.rpt) def
+/fdir (.) def
+/ftail (device1_intouch.log.rpt) def
+% User defined strings:
+/fmodstr (Tue Apr 18 16:00:52 2017) def
+/pagenumstr (2) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+do_header
+24 664 M (62:) s
+48 664 M
+(                Elapsed Time: 5 ms) s
+24 653 M (63:) s
+48 653 M
+(        ReaderDataService) s
+24 642 M (64:) s
+48 642 M
+(                Start: 435621\(device1_intouch.log\)) s
+24 631 M (65:) s
+48 631 M
+(                Completed: 435622\(device1_intouch.log\)) s
+24 620 M (66:) s
+48 620 M
+(                Elapsed Time: 4 ms) s
+24 609 M (67:) s
+48 609 M
+(        BiometricService) s
+24 598 M (68:) s
+48 598 M
+(                Start: 435577\(device1_intouch.log\)) s
+24 587 M (69:) s
+48 587 M
+(                Completed: 435620\(device1_intouch.log\)) s
+24 576 M (70:) s
+48 576 M
+(                Elapsed Time: 269 ms) s
+24 565 M (71:) s
+48 565 M
+(        StateManager) s
+24 554 M (72:) s
+48 554 M
+(                Start: 435625\(device1_intouch.log\)) s
+24 543 M (73:) s
+48 543 M
+(                Completed: 435626\(device1_intouch.log\)) s
+24 532 M (74:) s
+48 532 M
+(                Elapsed Time: 2468 ms) s
+24 521 M (75:) s
+48 521 M
+(        OfflineSmartviewService) s
+24 510 M (76:) s
+48 510 M
+(                Start: 435638\(device1_intouch.log\)) s
+24 499 M (77:) s
+48 499 M
+(                Completed: 435639\(device1_intouch.log\)) s
+24 488 M (78:) s
+48 488 M
+(                Elapsed Time: 16 ms) s
+24 477 M (79:) s
+48 477 M
+(        AVFeedbackService) s
+24 466 M (80:) s
+48 466 M
+(                Start: 435627\(device1_intouch.log\)) s
+24 455 M (81:) s
+48 455 M
+(                Completed: 435633\(device1_intouch.log\)) s
+24 444 M (82:) s
+48 444 M
+(                Elapsed Time: 123 ms) s
+24 433 M (83:) s
+48 433 M
+(        DatabaseThreads) s
+24 422 M (84:) s
+48 422 M
+(                Start: 435743\(device1_intouch.log\)) s
+24 411 M (85:) s
+48 411 M
+(                Completed: 435754\(device1_intouch.log\)) s
+24 400 M (86:) s
+48 400 M
+(                Elapsed Time: 3596 ms) s
+24 389 M (87:) s
+48 389 M
+(        SoftLoadService) s
+24 378 M (88:) s
+48 378 M
+(                Start: 435745\(device1_intouch.log\)) s
+24 367 M (89:) s
+48 367 M
+(                Completed: 435752\(device1_intouch.log\)) s
+24 356 M (90:) s
+48 356 M
+(                Elapsed Time: 3319 ms) s
+24 345 M (91:) s
+48 345 M
+(        WATCHDOG) s
+24 334 M (92:) s
+48 334 M
+(                Start: 435746\(device1_intouch.log\)) s
+24 323 M (93:) s
+48 323 M
+(                Completed: 435750\(device1_intouch.log\)) s
+24 312 M (94:) s
+48 312 M
+(                Elapsed Time: 526 ms) s
+24 301 M (95:) s
+48 301 M
+(        ProtocolService) s
+24 290 M (96:) s
+48 290 M
+(                Start: 435744\(device1_intouch.log\)) s
+24 279 M (97:) s
+48 279 M
+(                Completed: Not completed\(device1_intouch.log\)) s
+24 268 M (98:) s
+48 268 M
+(                Elapsed Time: ) s
+24 257 M (99:) s
+48 257 M
+(        DiagnosticsService) s
+18 246 M (100:) s
+48 246 M
+(                Start: 435748\(device1_intouch.log\)) s
+18 235 M (101:) s
+48 235 M
+(                Completed: 435749\(device1_intouch.log\)) s
+18 224 M (102:) s
+48 224 M
+(                Elapsed Time: 218 ms) s
+18 213 M (103:) s
+48 213 M
+(        *** Services not successfully started: ProtocolService) s
+18 202 M (104:) s
+48 202 M
+(=== Softload ===) s
+18 191 M (105:) s
+48 191 M
+(436276\(device1_intouch.log\) : Mar 25 19:17:55 Softload Start) s
+18 180 M (106:) s
+48 180 M
+(        Original version ==> 2.0.0-uix.64) s
+18 169 M (107:) s
+48 169 M
+(        New version ==> 2.0.2-146) s
+18 158 M (108:) s
+48 158 M
+(        Elapsed time \(sec\) ==> 622) s
+18 147 M (109:) s
+48 147 M
+(436427\(device1_intouch.log\) : Mar 25 19:28:17 Softload Completed) s
+18 136 M (110:) s
+48 136 M
+(=== Device boot ===) s
+18 125 M (111:) s
+48 125 M
+(436500\(device1_intouch.log\): 2014-03-25 19:29:59 Boot Start) s
+18 114 M (112:) s
+48 114 M
+(436859\(device1_intouch.log\): 2014-03-25 19:32:44 Boot Completed) s
+18 103 M (113:) s
+48 103 M
+(        Boot Time: 165000ms) s
+18 92 M (114:) s
+18 81 M (115:) s
+48 81 M
+(Services) s
+18 70 M (116:) s
+48 70 M
+(        Logging) s
+18 59 M (117:) s
+48 59 M
+(                Start: 436517\(device1_intouch.log\)) s
+18 48 M (118:) s
+48 48 M
+(                Completed: 436518\(device1_intouch.log\)) s
+18 37 M (119:) s
+48 37 M
+(                Elapsed Time: 317 ms) s
+18 26 M (120:) s
+48 26 M
+(        DatabaseInitialize) s
+18 15 M (121:) s
+48 15 M
+(                Start: 436519\(device1_intouch.log\)) s
+18 4 M (122:) s
+48 4 M
+(                Completed: 436543\(device1_intouch.log\)) s
+_R
+S
+%%Page: (3) 3
+%%BeginPageSetup
+_S
+50 50 translate
+/pagenum 3 def
+/fname (device1_intouch.log.rpt) def
+/fdir (.) def
+/ftail (device1_intouch.log.rpt) def
+% User defined strings:
+/fmodstr (Tue Apr 18 16:00:52 2017) def
+/pagenumstr (3) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+do_header
+18 664 M (123:) s
+48 664 M
+(                Elapsed Time: 27895 ms) s
+18 653 M (124:) s
+48 653 M
+(        MessagingService) s
+18 642 M (125:) s
+48 642 M
+(                Start: 436544\(device1_intouch.log\)) s
+18 631 M (126:) s
+48 631 M
+(                Completed: 436546\(device1_intouch.log\)) s
+18 620 M (127:) s
+48 620 M
+(                Elapsed Time: 8228 ms) s
+18 609 M (128:) s
+48 609 M
+(        HealthMonitorService) s
+18 598 M (129:) s
+48 598 M
+(                Start: 436709\(device1_intouch.log\)) s
+18 587 M (130:) s
+48 587 M
+(                Completed: 436710\(device1_intouch.log\)) s
+18 576 M (131:) s
+48 576 M
+(                Elapsed Time: 179 ms) s
+18 565 M (132:) s
+48 565 M
+(        Persistence) s
+18 554 M (133:) s
+48 554 M
+(                Start: 436711\(device1_intouch.log\)) s
+18 543 M (134:) s
+48 543 M
+(                Completed: 436713\(device1_intouch.log\)) s
+18 532 M (135:) s
+48 532 M
+(                Elapsed Time: 21279 ms) s
+18 521 M (136:) s
+48 521 M
+(        ConfigurationService) s
+18 510 M (137:) s
+48 510 M
+(                Start: 436714\(device1_intouch.log\)) s
+18 499 M (138:) s
+48 499 M
+(                Completed: 436715\(device1_intouch.log\)) s
+18 488 M (139:) s
+48 488 M
+(                Elapsed Time: 0 ms) s
+18 477 M (140:) s
+48 477 M
+(        LandingPadService) s
+18 466 M (141:) s
+48 466 M
+(                Start: 436718\(device1_intouch.log\)) s
+18 455 M (142:) s
+48 455 M
+(                Completed: 436719\(device1_intouch.log\)) s
+18 444 M (143:) s
+48 444 M
+(                Elapsed Time: 2 ms) s
+18 433 M (144:) s
+48 433 M
+(        PortConfigurationService) s
+18 422 M (145:) s
+48 422 M
+(                Start: 436720\(device1_intouch.log\)) s
+18 411 M (146:) s
+48 411 M
+(                Completed: 436721\(device1_intouch.log\)) s
+18 400 M (147:) s
+48 400 M
+(                Elapsed Time: 72 ms) s
+18 389 M (148:) s
+48 389 M
+(        CacheService) s
+18 378 M (149:) s
+48 378 M
+(                Start: 436733\(device1_intouch.log\)) s
+18 367 M (150:) s
+48 367 M
+(                Completed: 436734\(device1_intouch.log\)) s
+18 356 M (151:) s
+48 356 M
+(                Elapsed Time: 818 ms) s
+18 345 M (152:) s
+48 345 M
+(        ThemingService) s
+18 334 M (153:) s
+48 334 M
+(                Start: 436716\(device1_intouch.log\)) s
+18 323 M (154:) s
+48 323 M
+(                Completed: 436717\(device1_intouch.log\)) s
+18 312 M (155:) s
+48 312 M
+(                Elapsed Time: 0 ms) s
+18 301 M (156:) s
+48 301 M
+(        StagingService) s
+18 290 M (157:) s
+48 290 M
+(                Start: 436735\(device1_intouch.log\)) s
+18 279 M (158:) s
+48 279 M
+(                Completed: 436753\(device1_intouch.log\)) s
+18 268 M (159:) s
+48 268 M
+(                Elapsed Time: 7311 ms) s
+18 257 M (160:) s
+48 257 M
+(        DeviceIOService) s
+18 246 M (161:) s
+48 246 M
+(                Start: 436722\(device1_intouch.log\)) s
+18 235 M (162:) s
+48 235 M
+(                Completed: 436727\(device1_intouch.log\)) s
+18 224 M (163:) s
+48 224 M
+(                Elapsed Time: 30 ms) s
+18 213 M (164:) s
+48 213 M
+(        BellService) s
+18 202 M (165:) s
+48 202 M
+(                Start: 436758\(device1_intouch.log\)) s
+18 191 M (166:) s
+48 191 M
+(                Completed: 436760\(device1_intouch.log\)) s
+18 180 M (167:) s
+48 180 M
+(                Elapsed Time: 4 ms) s
+18 169 M (168:) s
+48 169 M
+(        GateService) s
+18 158 M (169:) s
+48 158 M
+(                Start: 436728\(device1_intouch.log\)) s
+18 147 M (170:) s
+48 147 M
+(                Completed: 436732\(device1_intouch.log\)) s
+18 136 M (171:) s
+48 136 M
+(                Elapsed Time: 8 ms) s
+18 125 M (172:) s
+48 125 M
+(        ReaderDataService) s
+18 114 M (173:) s
+48 114 M
+(                Start: 436754\(device1_intouch.log\)) s
+18 103 M (174:) s
+48 103 M
+(                Completed: 436755\(device1_intouch.log\)) s
+18 92 M (175:) s
+48 92 M
+(                Elapsed Time: 3 ms) s
+18 81 M (176:) s
+48 81 M
+(        BiometricService) s
+18 70 M (177:) s
+48 70 M
+(                Start: Not started\(device1_intouch.log\)) s
+18 59 M (178:) s
+48 59 M
+(                Completed: Not completed\(device1_intouch.log\)) s
+18 48 M (179:) s
+48 48 M
+(                Elapsed Time: ) s
+18 37 M (180:) s
+48 37 M
+(        StateManager) s
+18 26 M (181:) s
+48 26 M
+(                Start: 436768\(device1_intouch.log\)) s
+18 15 M (182:) s
+48 15 M
+(                Completed: 436769\(device1_intouch.log\)) s
+18 4 M (183:) s
+48 4 M
+(                Elapsed Time: 2500 ms) s
+_R
+S
+%%Page: (4) 4
+%%BeginPageSetup
+_S
+50 50 translate
+/pagenum 4 def
+/fname (device1_intouch.log.rpt) def
+/fdir (.) def
+/ftail (device1_intouch.log.rpt) def
+% User defined strings:
+/fmodstr (Tue Apr 18 16:00:52 2017) def
+/pagenumstr (4) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+do_header
+18 664 M (184:) s
+48 664 M
+(        OfflineSmartviewService) s
+18 653 M (185:) s
+48 653 M
+(                Start: 436770\(device1_intouch.log\)) s
+18 642 M (186:) s
+48 642 M
+(                Completed: 436771\(device1_intouch.log\)) s
+18 631 M (187:) s
+48 631 M
+(                Elapsed Time: 11 ms) s
+18 620 M (188:) s
+48 620 M
+(        AVFeedbackService) s
+18 609 M (189:) s
+48 609 M
+(                Start: 436761\(device1_intouch.log\)) s
+18 598 M (190:) s
+48 598 M
+(                Completed: 436767\(device1_intouch.log\)) s
+18 587 M (191:) s
+48 587 M
+(                Elapsed Time: 29 ms) s
+18 576 M (192:) s
+48 576 M
+(        DatabaseThreads) s
+18 565 M (193:) s
+48 565 M
+(                Start: 436843\(device1_intouch.log\)) s
+18 554 M (194:) s
+48 554 M
+(                Completed: 436854\(device1_intouch.log\)) s
+18 543 M (195:) s
+48 543 M
+(                Elapsed Time: 2878 ms) s
+18 532 M (196:) s
+48 532 M
+(        SoftLoadService) s
+18 521 M (197:) s
+48 521 M
+(                Start: 436846\(device1_intouch.log\)) s
+18 510 M (198:) s
+48 510 M
+(                Completed: 436858\(device1_intouch.log\)) s
+18 499 M (199:) s
+48 499 M
+(                Elapsed Time: 3931 ms) s
+18 488 M (200:) s
+48 488 M
+(        WATCHDOG) s
+18 477 M (201:) s
+48 477 M
+(                Start: 436847\(device1_intouch.log\)) s
+18 466 M (202:) s
+48 466 M
+(                Completed: 436850\(device1_intouch.log\)) s
+18 455 M (203:) s
+48 455 M
+(                Elapsed Time: 304 ms) s
+18 444 M (204:) s
+48 444 M
+(        ProtocolService) s
+18 433 M (205:) s
+48 433 M
+(                Start: 436848\(device1_intouch.log\)) s
+18 422 M (206:) s
+48 422 M
+(                Completed: Not completed\(device1_intouch.log\)) s
+18 411 M (207:) s
+48 411 M
+(                Elapsed Time: ) s
+18 400 M (208:) s
+48 400 M
+(        DiagnosticsService) s
+18 389 M (209:) s
+48 389 M
+(                Start: 436845\(device1_intouch.log\)) s
+18 378 M (210:) s
+48 378 M
+(                Completed: 436849\(device1_intouch.log\)) s
+18 367 M (211:) s
+48 367 M
+(                Elapsed Time: 130 ms) s
+18 356 M (212:) s
+48 356 M
+(        *** Services not successfully started: BiometricService, ProtocolSer) s
+5 345 M
+(vice) s
+18 334 M (213:) s
+48 334 M
+(=== Softload ===) s
+18 323 M (214:) s
+48 323 M
+(440360\(device1_intouch.log\) : Mar 25 21:45:44 Softload Start) s
+18 312 M (215:) s
+48 312 M
+(        Original version ==> 2.0.2-146) s
+18 301 M (216:) s
+48 301 M
+(        New version ==> 2.1.0-udm.12) s
+18 290 M (217:) s
+48 290 M
+(        Elapsed time \(sec\) ==> 596) s
+18 279 M (218:) s
+48 279 M
+(440518\(device1_intouch.log\) : Mar 25 21:55:40 Softload Completed) s
+18 268 M (219:) s
+48 268 M
+(=== Device boot ===) s
+18 257 M (220:) s
+48 257 M
+(440719\(device1_intouch.log\): 2014-03-25 22:01:46 Boot Start) s
+18 246 M (221:) s
+48 246 M
+(440791\(device1_intouch.log\): 2014-03-25 22:04:27 Boot Completed) s
+18 235 M (222:) s
+48 235 M
+(        Boot Time: 161000ms) s
+18 224 M (223:) s
+18 213 M (224:) s
+48 213 M
+(Services) s
+18 202 M (225:) s
+48 202 M
+(        Logging) s
+18 191 M (226:) s
+48 191 M
+(                Start: 440734\(device1_intouch.log\)) s
+18 180 M (227:) s
+48 180 M
+(                Completed: 440735\(device1_intouch.log\)) s
+18 169 M (228:) s
+48 169 M
+(                Elapsed Time: 290 ms) s
+18 158 M (229:) s
+48 158 M
+(        DatabaseInitialize) s
+18 147 M (230:) s
+48 147 M
+(                Start: 440736\(device1_intouch.log\)) s
+18 136 M (231:) s
+48 136 M
+(                Completed: 440737\(device1_intouch.log\)) s
+18 125 M (232:) s
+48 125 M
+(                Elapsed Time: 28599 ms) s
+18 114 M (233:) s
+48 114 M
+(        MessagingService) s
+18 103 M (234:) s
+48 103 M
+(                Start: 440738\(device1_intouch.log\)) s
+18 92 M (235:) s
+48 92 M
+(                Completed: 440739\(device1_intouch.log\)) s
+18 81 M (236:) s
+48 81 M
+(                Elapsed Time: 7334 ms) s
+18 70 M (237:) s
+48 70 M
+(        HealthMonitorService) s
+18 59 M (238:) s
+48 59 M
+(                Start: 440744\(device1_intouch.log\)) s
+18 48 M (239:) s
+48 48 M
+(                Completed: 440745\(device1_intouch.log\)) s
+18 37 M (240:) s
+48 37 M
+(                Elapsed Time: 173 ms) s
+18 26 M (241:) s
+48 26 M
+(        Persistence) s
+18 15 M (242:) s
+48 15 M
+(                Start: 440746\(device1_intouch.log\)) s
+18 4 M (243:) s
+48 4 M
+(                Completed: 440747\(device1_intouch.log\)) s
+_R
+S
+%%Page: (5) 5
+%%BeginPageSetup
+_S
+50 50 translate
+/pagenum 5 def
+/fname (device1_intouch.log.rpt) def
+/fdir (.) def
+/ftail (device1_intouch.log.rpt) def
+% User defined strings:
+/fmodstr (Tue Apr 18 16:00:52 2017) def
+/pagenumstr (5) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+do_header
+18 664 M (244:) s
+48 664 M
+(                Elapsed Time: 21237 ms) s
+18 653 M (245:) s
+48 653 M
+(        ConfigurationService) s
+18 642 M (246:) s
+48 642 M
+(                Start: 440748\(device1_intouch.log\)) s
+18 631 M (247:) s
+48 631 M
+(                Completed: 440749\(device1_intouch.log\)) s
+18 620 M (248:) s
+48 620 M
+(                Elapsed Time: 0 ms) s
+18 609 M (249:) s
+48 609 M
+(        LandingPadService) s
+18 598 M (250:) s
+48 598 M
+(                Start: 440758\(device1_intouch.log\)) s
+18 587 M (251:) s
+48 587 M
+(                Completed: 440759\(device1_intouch.log\)) s
+18 576 M (252:) s
+48 576 M
+(                Elapsed Time: 2 ms) s
+18 565 M (253:) s
+48 565 M
+(        PortConfigurationService) s
+18 554 M (254:) s
+48 554 M
+(                Start: 440750\(device1_intouch.log\)) s
+18 543 M (255:) s
+48 543 M
+(                Completed: 440751\(device1_intouch.log\)) s
+18 532 M (256:) s
+48 532 M
+(                Elapsed Time: 74 ms) s
+18 521 M (257:) s
+48 521 M
+(        CacheService) s
+18 510 M (258:) s
+48 510 M
+(                Start: 440754\(device1_intouch.log\)) s
+18 499 M (259:) s
+48 499 M
+(                Completed: 440755\(device1_intouch.log\)) s
+18 488 M (260:) s
+48 488 M
+(                Elapsed Time: 773 ms) s
+18 477 M (261:) s
+48 477 M
+(        ThemingService) s
+18 466 M (262:) s
+48 466 M
+(                Start: 440760\(device1_intouch.log\)) s
+18 455 M (263:) s
+48 455 M
+(                Completed: 440761\(device1_intouch.log\)) s
+18 444 M (264:) s
+48 444 M
+(                Elapsed Time: 0 ms) s
+18 433 M (265:) s
+48 433 M
+(        StagingService) s
+18 422 M (266:) s
+48 422 M
+(                Start: 440762\(device1_intouch.log\)) s
+18 411 M (267:) s
+48 411 M
+(                Completed: 440763\(device1_intouch.log\)) s
+18 400 M (268:) s
+48 400 M
+(                Elapsed Time: 7159 ms) s
+18 389 M (269:) s
+48 389 M
+(        DeviceIOService) s
+18 378 M (270:) s
+48 378 M
+(                Start: 440752\(device1_intouch.log\)) s
+18 367 M (271:) s
+48 367 M
+(                Completed: 440753\(device1_intouch.log\)) s
+18 356 M (272:) s
+48 356 M
+(                Elapsed Time: 27 ms) s
+18 345 M (273:) s
+48 345 M
+(        BellService) s
+18 334 M (274:) s
+48 334 M
+(                Start: 440764\(device1_intouch.log\)) s
+18 323 M (275:) s
+48 323 M
+(                Completed: 440765\(device1_intouch.log\)) s
+18 312 M (276:) s
+48 312 M
+(                Elapsed Time: 5 ms) s
+18 301 M (277:) s
+48 301 M
+(        GateService) s
+18 290 M (278:) s
+48 290 M
+(                Start: 440774\(device1_intouch.log\)) s
+18 279 M (279:) s
+48 279 M
+(                Completed: 440775\(device1_intouch.log\)) s
+18 268 M (280:) s
+48 268 M
+(                Elapsed Time: 3 ms) s
+18 257 M (281:) s
+48 257 M
+(        ReaderDataService) s
+18 246 M (282:) s
+48 246 M
+(                Start: 440766\(device1_intouch.log\)) s
+18 235 M (283:) s
+48 235 M
+(                Completed: 440767\(device1_intouch.log\)) s
+18 224 M (284:) s
+48 224 M
+(                Elapsed Time: 82 ms) s
+18 213 M (285:) s
+48 213 M
+(        BiometricService) s
+18 202 M (286:) s
+48 202 M
+(                Start: 440768\(device1_intouch.log\)) s
+18 191 M (287:) s
+48 191 M
+(                Completed: 440769\(device1_intouch.log\)) s
+18 180 M (288:) s
+48 180 M
+(                Elapsed Time: 224 ms) s
+18 169 M (289:) s
+48 169 M
+(        StateManager) s
+18 158 M (290:) s
+48 158 M
+(                Start: 440770\(device1_intouch.log\)) s
+18 147 M (291:) s
+48 147 M
+(                Completed: 440771\(device1_intouch.log\)) s
+18 136 M (292:) s
+48 136 M
+(                Elapsed Time: 2637 ms) s
+18 125 M (293:) s
+48 125 M
+(        OfflineSmartviewService) s
+18 114 M (294:) s
+48 114 M
+(                Start: 440772\(device1_intouch.log\)) s
+18 103 M (295:) s
+48 103 M
+(                Completed: 440773\(device1_intouch.log\)) s
+18 92 M (296:) s
+48 92 M
+(                Elapsed Time: 12 ms) s
+18 81 M (297:) s
+48 81 M
+(        AVFeedbackService) s
+18 70 M (298:) s
+48 70 M
+(                Start: 440756\(device1_intouch.log\)) s
+18 59 M (299:) s
+48 59 M
+(                Completed: 440757\(device1_intouch.log\)) s
+18 48 M (300:) s
+48 48 M
+(                Elapsed Time: 26 ms) s
+18 37 M (301:) s
+48 37 M
+(        DatabaseThreads) s
+18 26 M (302:) s
+48 26 M
+(                Start: 440777\(device1_intouch.log\)) s
+18 15 M (303:) s
+48 15 M
+(                Completed: 440787\(device1_intouch.log\)) s
+18 4 M (304:) s
+48 4 M
+(                Elapsed Time: 3302 ms) s
+_R
+S
+%%Page: (6) 6
+%%BeginPageSetup
+_S
+50 50 translate
+/pagenum 6 def
+/fname (device1_intouch.log.rpt) def
+/fdir (.) def
+/ftail (device1_intouch.log.rpt) def
+% User defined strings:
+/fmodstr (Tue Apr 18 16:00:52 2017) def
+/pagenumstr (6) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+do_header
+18 664 M (305:) s
+48 664 M
+(        SoftLoadService) s
+18 653 M (306:) s
+48 653 M
+(                Start: 440778\(device1_intouch.log\)) s
+18 642 M (307:) s
+48 642 M
+(                Completed: 440790\(device1_intouch.log\)) s
+18 631 M (308:) s
+48 631 M
+(                Elapsed Time: 4172 ms) s
+18 620 M (309:) s
+48 620 M
+(        WATCHDOG) s
+18 609 M (310:) s
+48 609 M
+(                Start: 440780\(device1_intouch.log\)) s
+18 598 M (311:) s
+48 598 M
+(                Completed: 440784\(device1_intouch.log\)) s
+18 587 M (312:) s
+48 587 M
+(                Elapsed Time: 608 ms) s
+18 576 M (313:) s
+48 576 M
+(        ProtocolService) s
+18 565 M (314:) s
+48 565 M
+(                Start: 440779\(device1_intouch.log\)) s
+18 554 M (315:) s
+48 554 M
+(                Completed: Not completed\(device1_intouch.log\)) s
+18 543 M (316:) s
+48 543 M
+(                Elapsed Time: ) s
+18 532 M (317:) s
+48 532 M
+(        DiagnosticsService) s
+18 521 M (318:) s
+48 521 M
+(                Start: 440782\(device1_intouch.log\)) s
+18 510 M (319:) s
+48 510 M
+(                Completed: 440783\(device1_intouch.log\)) s
+18 499 M (320:) s
+48 499 M
+(                Elapsed Time: 405 ms) s
+18 488 M (321:) s
+48 488 M
+(        *** Services not successfully started: ProtocolService) s
+18 477 M (322:) s
+48 477 M
+(=== Device boot ===) s
+18 466 M (323:) s
+48 466 M
+(440866\(device1_intouch.log\): 2014-03-26 12:47:42 Boot Start) s
+18 455 M (324:) s
+48 455 M
+(441216\(device1_intouch.log\): 2014-03-26 12:50:29 Boot Completed) s
+18 444 M (325:) s
+48 444 M
+(        Boot Time: 167000ms) s
+18 433 M (326:) s
+18 422 M (327:) s
+48 422 M
+(Services) s
+18 411 M (328:) s
+48 411 M
+(        Logging) s
+18 400 M (329:) s
+48 400 M
+(                Start: 440882\(device1_intouch.log\)) s
+18 389 M (330:) s
+48 389 M
+(                Completed: 440883\(device1_intouch.log\)) s
+18 378 M (331:) s
+48 378 M
+(                Elapsed Time: 271 ms) s
+18 367 M (332:) s
+48 367 M
+(        DatabaseInitialize) s
+18 356 M (333:) s
+48 356 M
+(                Start: 440884\(device1_intouch.log\)) s
+18 345 M (334:) s
+48 345 M
+(                Completed: 440908\(device1_intouch.log\)) s
+18 334 M (335:) s
+48 334 M
+(                Elapsed Time: 29021 ms) s
+18 323 M (336:) s
+48 323 M
+(        MessagingService) s
+18 312 M (337:) s
+48 312 M
+(                Start: 440909\(device1_intouch.log\)) s
+18 301 M (338:) s
+48 301 M
+(                Completed: 440911\(device1_intouch.log\)) s
+18 290 M (339:) s
+48 290 M
+(                Elapsed Time: 7315 ms) s
+18 279 M (340:) s
+48 279 M
+(        HealthMonitorService) s
+18 268 M (341:) s
+48 268 M
+(                Start: 441042\(device1_intouch.log\)) s
+18 257 M (342:) s
+48 257 M
+(                Completed: 441043\(device1_intouch.log\)) s
+18 246 M (343:) s
+48 246 M
+(                Elapsed Time: 182 ms) s
+18 235 M (344:) s
+48 235 M
+(        Persistence) s
+18 224 M (345:) s
+48 224 M
+(                Start: 441044\(device1_intouch.log\)) s
+18 213 M (346:) s
+48 213 M
+(                Completed: 441046\(device1_intouch.log\)) s
+18 202 M (347:) s
+48 202 M
+(                Elapsed Time: 19915 ms) s
+18 191 M (348:) s
+48 191 M
+(        ConfigurationService) s
+18 180 M (349:) s
+48 180 M
+(                Start: 441047\(device1_intouch.log\)) s
+18 169 M (350:) s
+48 169 M
+(                Completed: 441048\(device1_intouch.log\)) s
+18 158 M (351:) s
+48 158 M
+(                Elapsed Time: 0 ms) s
+18 147 M (352:) s
+48 147 M
+(        LandingPadService) s
+18 136 M (353:) s
+48 136 M
+(                Start: 441049\(device1_intouch.log\)) s
+18 125 M (354:) s
+48 125 M
+(                Completed: 441050\(device1_intouch.log\)) s
+18 114 M (355:) s
+48 114 M
+(                Elapsed Time: 2 ms) s
+18 103 M (356:) s
+48 103 M
+(        PortConfigurationService) s
+18 92 M (357:) s
+48 92 M
+(                Start: 441051\(device1_intouch.log\)) s
+18 81 M (358:) s
+48 81 M
+(                Completed: 441052\(device1_intouch.log\)) s
+18 70 M (359:) s
+48 70 M
+(                Elapsed Time: 67 ms) s
+18 59 M (360:) s
+48 59 M
+(        CacheService) s
+18 48 M (361:) s
+48 48 M
+(                Start: 441055\(device1_intouch.log\)) s
+18 37 M (362:) s
+48 37 M
+(                Completed: 441056\(device1_intouch.log\)) s
+18 26 M (363:) s
+48 26 M
+(                Elapsed Time: 1224 ms) s
+18 15 M (364:) s
+48 15 M
+(        ThemingService) s
+18 4 M (365:) s
+48 4 M
+(                Start: 441053\(device1_intouch.log\)) s
+_R
+S
+%%Page: (7) 7
+%%BeginPageSetup
+_S
+50 50 translate
+/pagenum 7 def
+/fname (device1_intouch.log.rpt) def
+/fdir (.) def
+/ftail (device1_intouch.log.rpt) def
+% User defined strings:
+/fmodstr (Tue Apr 18 16:00:52 2017) def
+/pagenumstr (7) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+do_header
+18 664 M (366:) s
+48 664 M
+(                Completed: 441054\(device1_intouch.log\)) s
+18 653 M (367:) s
+48 653 M
+(                Elapsed Time: 0 ms) s
+18 642 M (368:) s
+48 642 M
+(        StagingService) s
+18 631 M (369:) s
+48 631 M
+(                Start: 441057\(device1_intouch.log\)) s
+18 620 M (370:) s
+48 620 M
+(                Completed: 441073\(device1_intouch.log\)) s
+18 609 M (371:) s
+48 609 M
+(                Elapsed Time: 7815 ms) s
+18 598 M (372:) s
+48 598 M
+(        DeviceIOService) s
+18 587 M (373:) s
+48 587 M
+(                Start: 441074\(device1_intouch.log\)) s
+18 576 M (374:) s
+48 576 M
+(                Completed: 441079\(device1_intouch.log\)) s
+18 565 M (375:) s
+48 565 M
+(                Elapsed Time: 31 ms) s
+18 554 M (376:) s
+48 554 M
+(        BellService) s
+18 543 M (377:) s
+48 543 M
+(                Start: 441080\(device1_intouch.log\)) s
+18 532 M (378:) s
+48 532 M
+(                Completed: 441083\(device1_intouch.log\)) s
+18 521 M (379:) s
+48 521 M
+(                Elapsed Time: 8 ms) s
+18 510 M (380:) s
+48 510 M
+(        GateService) s
+18 499 M (381:) s
+48 499 M
+(                Start: 441133\(device1_intouch.log\)) s
+18 488 M (382:) s
+48 488 M
+(                Completed: 441136\(device1_intouch.log\)) s
+18 477 M (383:) s
+48 477 M
+(                Elapsed Time: 5 ms) s
+18 466 M (384:) s
+48 466 M
+(        ReaderDataService) s
+18 455 M (385:) s
+48 455 M
+(                Start: 441137\(device1_intouch.log\)) s
+18 444 M (386:) s
+48 444 M
+(                Completed: 441140\(device1_intouch.log\)) s
+18 433 M (387:) s
+48 433 M
+(                Elapsed Time: 18 ms) s
+18 422 M (388:) s
+48 422 M
+(        BiometricService) s
+18 411 M (389:) s
+48 411 M
+(                Start: 441091\(device1_intouch.log\)) s
+18 400 M (390:) s
+48 400 M
+(                Completed: 441128\(device1_intouch.log\)) s
+18 389 M (391:) s
+48 389 M
+(                Elapsed Time: 234 ms) s
+18 378 M (392:) s
+48 378 M
+(        StateManager) s
+18 367 M (393:) s
+48 367 M
+(                Start: 441129\(device1_intouch.log\)) s
+18 356 M (394:) s
+48 356 M
+(                Completed: 441130\(device1_intouch.log\)) s
+18 345 M (395:) s
+48 345 M
+(                Elapsed Time: 2187 ms) s
+18 334 M (396:) s
+48 334 M
+(        OfflineSmartviewService) s
+18 323 M (397:) s
+48 323 M
+(                Start: 441131\(device1_intouch.log\)) s
+18 312 M (398:) s
+48 312 M
+(                Completed: 441132\(device1_intouch.log\)) s
+18 301 M (399:) s
+48 301 M
+(                Elapsed Time: 15 ms) s
+18 290 M (400:) s
+48 290 M
+(        AVFeedbackService) s
+18 279 M (401:) s
+48 279 M
+(                Start: 441084\(device1_intouch.log\)) s
+18 268 M (402:) s
+48 268 M
+(                Completed: 441090\(device1_intouch.log\)) s
+18 257 M (403:) s
+48 257 M
+(                Elapsed Time: 41 ms) s
+18 246 M (404:) s
+48 246 M
+(        DatabaseThreads) s
+18 235 M (405:) s
+48 235 M
+(                Start: 441199\(device1_intouch.log\)) s
+18 224 M (406:) s
+48 224 M
+(                Completed: 441212\(device1_intouch.log\)) s
+18 213 M (407:) s
+48 213 M
+(                Elapsed Time: 3373 ms) s
+18 202 M (408:) s
+48 202 M
+(        SoftLoadService) s
+18 191 M (409:) s
+48 191 M
+(                Start: 441201\(device1_intouch.log\)) s
+18 180 M (410:) s
+48 180 M
+(                Completed: 441210\(device1_intouch.log\)) s
+18 169 M (411:) s
+48 169 M
+(                Elapsed Time: 3225 ms) s
+18 158 M (412:) s
+48 158 M
+(        WATCHDOG) s
+18 147 M (413:) s
+48 147 M
+(                Start: 441203\(device1_intouch.log\)) s
+18 136 M (414:) s
+48 136 M
+(                Completed: 441206\(device1_intouch.log\)) s
+18 125 M (415:) s
+48 125 M
+(                Elapsed Time: 390 ms) s
+18 114 M (416:) s
+48 114 M
+(        ProtocolService) s
+18 103 M (417:) s
+48 103 M
+(                Start: 441204\(device1_intouch.log\)) s
+18 92 M (418:) s
+48 92 M
+(                Completed: Not completed\(device1_intouch.log\)) s
+18 81 M (419:) s
+48 81 M
+(                Elapsed Time: ) s
+18 70 M (420:) s
+48 70 M
+(        DiagnosticsService) s
+18 59 M (421:) s
+48 59 M
+(                Start: 441202\(device1_intouch.log\)) s
+18 48 M (422:) s
+48 48 M
+(                Completed: 441205\(device1_intouch.log\)) s
+18 37 M (423:) s
+48 37 M
+(                Elapsed Time: 260 ms) s
+18 26 M (424:) s
+48 26 M
+(        *** Services not successfully started: ProtocolService) s
+18 15 M (425:) s
+48 15 M
+(=== Device boot ===) s
+18 4 M (426:) s
+48 4 M
+(442094\(device1_intouch.log\): 2014-03-26 20:41:34 Boot Start) s
+_R
+S
+%%Page: (8) 8
+%%BeginPageSetup
+_S
+50 50 translate
+/pagenum 8 def
+/fname (device1_intouch.log.rpt) def
+/fdir (.) def
+/ftail (device1_intouch.log.rpt) def
+% User defined strings:
+/fmodstr (Tue Apr 18 16:00:52 2017) def
+/pagenumstr (8) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+do_header
+18 664 M (427:) s
+48 664 M
+(442432\(device1_intouch.log\): 2014-03-26 20:44:13 Boot Completed) s
+18 653 M (428:) s
+48 653 M
+(        Boot Time: 159000ms) s
+18 642 M (429:) s
+18 631 M (430:) s
+48 631 M
+(Services) s
+18 620 M (431:) s
+48 620 M
+(        Logging) s
+18 609 M (432:) s
+48 609 M
+(                Start: 442110\(device1_intouch.log\)) s
+18 598 M (433:) s
+48 598 M
+(                Completed: 442111\(device1_intouch.log\)) s
+18 587 M (434:) s
+48 587 M
+(                Elapsed Time: 268 ms) s
+18 576 M (435:) s
+48 576 M
+(        DatabaseInitialize) s
+18 565 M (436:) s
+48 565 M
+(                Start: 442112\(device1_intouch.log\)) s
+18 554 M (437:) s
+48 554 M
+(                Completed: 442136\(device1_intouch.log\)) s
+18 543 M (438:) s
+48 543 M
+(                Elapsed Time: 29079 ms) s
+18 532 M (439:) s
+48 532 M
+(        MessagingService) s
+18 521 M (440:) s
+48 521 M
+(                Start: 442137\(device1_intouch.log\)) s
+18 510 M (441:) s
+48 510 M
+(                Completed: 442139\(device1_intouch.log\)) s
+18 499 M (442:) s
+48 499 M
+(                Elapsed Time: 7741 ms) s
+18 488 M (443:) s
+48 488 M
+(        HealthMonitorService) s
+18 477 M (444:) s
+48 477 M
+(                Start: 442259\(device1_intouch.log\)) s
+18 466 M (445:) s
+48 466 M
+(                Completed: 442260\(device1_intouch.log\)) s
+18 455 M (446:) s
+48 455 M
+(                Elapsed Time: 160 ms) s
+18 444 M (447:) s
+48 444 M
+(        Persistence) s
+18 433 M (448:) s
+48 433 M
+(                Start: 442261\(device1_intouch.log\)) s
+18 422 M (449:) s
+48 422 M
+(                Completed: 442263\(device1_intouch.log\)) s
+18 411 M (450:) s
+48 411 M
+(                Elapsed Time: 18119 ms) s
+18 400 M (451:) s
+48 400 M
+(        ConfigurationService) s
+18 389 M (452:) s
+48 389 M
+(                Start: 442264\(device1_intouch.log\)) s
+18 378 M (453:) s
+48 378 M
+(                Completed: 442265\(device1_intouch.log\)) s
+18 367 M (454:) s
+48 367 M
+(                Elapsed Time: 0 ms) s
+18 356 M (455:) s
+48 356 M
+(        LandingPadService) s
+18 345 M (456:) s
+48 345 M
+(                Start: 442272\(device1_intouch.log\)) s
+18 334 M (457:) s
+48 334 M
+(                Completed: 442273\(device1_intouch.log\)) s
+18 323 M (458:) s
+48 323 M
+(                Elapsed Time: 2 ms) s
+18 312 M (459:) s
+48 312 M
+(        PortConfigurationService) s
+18 301 M (460:) s
+48 301 M
+(                Start: 442270\(device1_intouch.log\)) s
+18 290 M (461:) s
+48 290 M
+(                Completed: 442271\(device1_intouch.log\)) s
+18 279 M (462:) s
+48 279 M
+(                Elapsed Time: 67 ms) s
+18 268 M (463:) s
+48 268 M
+(        CacheService) s
+18 257 M (464:) s
+48 257 M
+(                Start: 442268\(device1_intouch.log\)) s
+18 246 M (465:) s
+48 246 M
+(                Completed: 442269\(device1_intouch.log\)) s
+18 235 M (466:) s
+48 235 M
+(                Elapsed Time: 800 ms) s
+18 224 M (467:) s
+48 224 M
+(        ThemingService) s
+18 213 M (468:) s
+48 213 M
+(                Start: 442266\(device1_intouch.log\)) s
+18 202 M (469:) s
+48 202 M
+(                Completed: 442267\(device1_intouch.log\)) s
+18 191 M (470:) s
+48 191 M
+(                Elapsed Time: 0 ms) s
+18 180 M (471:) s
+48 180 M
+(        StagingService) s
+18 169 M (472:) s
+48 169 M
+(                Start: 442274\(device1_intouch.log\)) s
+18 158 M (473:) s
+48 158 M
+(                Completed: 442290\(device1_intouch.log\)) s
+18 147 M (474:) s
+48 147 M
+(                Elapsed Time: 7068 ms) s
+18 136 M (475:) s
+48 136 M
+(        DeviceIOService) s
+18 125 M (476:) s
+48 125 M
+(                Start: 442291\(device1_intouch.log\)) s
+18 114 M (477:) s
+48 114 M
+(                Completed: 442296\(device1_intouch.log\)) s
+18 103 M (478:) s
+48 103 M
+(                Elapsed Time: 35 ms) s
+18 92 M (479:) s
+48 92 M
+(        BellService) s
+18 81 M (480:) s
+48 81 M
+(                Start: 442304\(device1_intouch.log\)) s
+18 70 M (481:) s
+48 70 M
+(                Completed: 442305\(device1_intouch.log\)) s
+18 59 M (482:) s
+48 59 M
+(                Elapsed Time: 4 ms) s
+18 48 M (483:) s
+48 48 M
+(        GateService) s
+18 37 M (484:) s
+48 37 M
+(                Start: 442308\(device1_intouch.log\)) s
+18 26 M (485:) s
+48 26 M
+(                Completed: 442311\(device1_intouch.log\)) s
+18 15 M (486:) s
+48 15 M
+(                Elapsed Time: 4 ms) s
+18 4 M (487:) s
+48 4 M
+(        ReaderDataService) s
+_R
+S
+%%Page: (9) 9
+%%BeginPageSetup
+_S
+50 50 translate
+/pagenum 9 def
+/fname (device1_intouch.log.rpt) def
+/fdir (.) def
+/ftail (device1_intouch.log.rpt) def
+% User defined strings:
+/fmodstr (Tue Apr 18 16:00:52 2017) def
+/pagenumstr (9) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+do_header
+18 664 M (488:) s
+48 664 M
+(                Start: 442354\(device1_intouch.log\)) s
+18 653 M (489:) s
+48 653 M
+(                Completed: 442357\(device1_intouch.log\)) s
+18 642 M (490:) s
+48 642 M
+(                Elapsed Time: 4 ms) s
+18 631 M (491:) s
+48 631 M
+(        BiometricService) s
+18 620 M (492:) s
+48 620 M
+(                Start: 442312\(device1_intouch.log\)) s
+18 609 M (493:) s
+48 609 M
+(                Completed: 442349\(device1_intouch.log\)) s
+18 598 M (494:) s
+48 598 M
+(                Elapsed Time: 242 ms) s
+18 587 M (495:) s
+48 587 M
+(        StateManager) s
+18 576 M (496:) s
+48 576 M
+(                Start: 442350\(device1_intouch.log\)) s
+18 565 M (497:) s
+48 565 M
+(                Completed: 442351\(device1_intouch.log\)) s
+18 554 M (498:) s
+48 554 M
+(                Elapsed Time: 1902 ms) s
+18 543 M (499:) s
+48 543 M
+(        OfflineSmartviewService) s
+18 532 M (500:) s
+48 532 M
+(                Start: 442352\(device1_intouch.log\)) s
+18 521 M (501:) s
+48 521 M
+(                Completed: 442353\(device1_intouch.log\)) s
+18 510 M (502:) s
+48 510 M
+(                Elapsed Time: 12 ms) s
+18 499 M (503:) s
+48 499 M
+(        AVFeedbackService) s
+18 488 M (504:) s
+48 488 M
+(                Start: 442297\(device1_intouch.log\)) s
+18 477 M (505:) s
+48 477 M
+(                Completed: 442303\(device1_intouch.log\)) s
+18 466 M (506:) s
+48 466 M
+(                Elapsed Time: 36 ms) s
+18 455 M (507:) s
+48 455 M
+(        DatabaseThreads) s
+18 444 M (508:) s
+48 444 M
+(                Start: 442416\(device1_intouch.log\)) s
+18 433 M (509:) s
+48 433 M
+(                Completed: 442428\(device1_intouch.log\)) s
+18 422 M (510:) s
+48 422 M
+(                Elapsed Time: 3063 ms) s
+18 411 M (511:) s
+48 411 M
+(        SoftLoadService) s
+18 400 M (512:) s
+48 400 M
+(                Start: 442420\(device1_intouch.log\)) s
+18 389 M (513:) s
+48 389 M
+(                Completed: 442427\(device1_intouch.log\)) s
+18 378 M (514:) s
+48 378 M
+(                Elapsed Time: 2932 ms) s
+18 367 M (515:) s
+48 367 M
+(        WATCHDOG) s
+18 356 M (516:) s
+48 356 M
+(                Start: 442419\(device1_intouch.log\)) s
+18 345 M (517:) s
+48 345 M
+(                Completed: 442423\(device1_intouch.log\)) s
+18 334 M (518:) s
+48 334 M
+(                Elapsed Time: 378 ms) s
+18 323 M (519:) s
+48 323 M
+(        ProtocolService) s
+18 312 M (520:) s
+48 312 M
+(                Start: 442421\(device1_intouch.log\)) s
+18 301 M (521:) s
+48 301 M
+(                Completed: Not completed\(device1_intouch.log\)) s
+18 290 M (522:) s
+48 290 M
+(                Elapsed Time: ) s
+18 279 M (523:) s
+48 279 M
+(        DiagnosticsService) s
+18 268 M (524:) s
+48 268 M
+(                Start: 442417\(device1_intouch.log\)) s
+18 257 M (525:) s
+48 257 M
+(                Completed: 442422\(device1_intouch.log\)) s
+18 246 M (526:) s
+48 246 M
+(                Elapsed Time: 182 ms) s
+18 235 M (527:) s
+48 235 M
+(        *** Services not successfully started: ProtocolService) s
+18 224 M (528:) s
+48 224 M
+(=== Device boot ===) s
+18 213 M (529:) s
+48 213 M
+(443073\(device1_intouch.log\): 2014-03-27 14:09:01 Boot Start) s
+18 202 M (530:) s
+48 202 M
+(443411\(device1_intouch.log\): 2014-03-27 14:11:42 Boot Completed) s
+18 191 M (531:) s
+48 191 M
+(        Boot Time: 161000ms) s
+18 180 M (532:) s
+18 169 M (533:) s
+48 169 M
+(Services) s
+18 158 M (534:) s
+48 158 M
+(        Logging) s
+18 147 M (535:) s
+48 147 M
+(                Start: 443089\(device1_intouch.log\)) s
+18 136 M (536:) s
+48 136 M
+(                Completed: 443090\(device1_intouch.log\)) s
+18 125 M (537:) s
+48 125 M
+(                Elapsed Time: 270 ms) s
+18 114 M (538:) s
+48 114 M
+(        DatabaseInitialize) s
+18 103 M (539:) s
+48 103 M
+(                Start: 443091\(device1_intouch.log\)) s
+18 92 M (540:) s
+48 92 M
+(                Completed: 443113\(device1_intouch.log\)) s
+18 81 M (541:) s
+48 81 M
+(                Elapsed Time: 28777 ms) s
+18 70 M (542:) s
+48 70 M
+(        MessagingService) s
+18 59 M (543:) s
+48 59 M
+(                Start: 443116\(device1_intouch.log\)) s
+18 48 M (544:) s
+48 48 M
+(                Completed: 443118\(device1_intouch.log\)) s
+18 37 M (545:) s
+48 37 M
+(                Elapsed Time: 7909 ms) s
+18 26 M (546:) s
+48 26 M
+(        HealthMonitorService) s
+18 15 M (547:) s
+48 15 M
+(                Start: 443238\(device1_intouch.log\)) s
+18 4 M (548:) s
+48 4 M
+(                Completed: 443239\(device1_intouch.log\)) s
+_R
+S
+%%Page: (10) 10
+%%BeginPageSetup
+_S
+50 50 translate
+/pagenum 10 def
+/fname (device1_intouch.log.rpt) def
+/fdir (.) def
+/ftail (device1_intouch.log.rpt) def
+% User defined strings:
+/fmodstr (Tue Apr 18 16:00:52 2017) def
+/pagenumstr (10) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+do_header
+18 664 M (549:) s
+48 664 M
+(                Elapsed Time: 211 ms) s
+18 653 M (550:) s
+48 653 M
+(        Persistence) s
+18 642 M (551:) s
+48 642 M
+(                Start: 443240\(device1_intouch.log\)) s
+18 631 M (552:) s
+48 631 M
+(                Completed: 443242\(device1_intouch.log\)) s
+18 620 M (553:) s
+48 620 M
+(                Elapsed Time: 17609 ms) s
+18 609 M (554:) s
+48 609 M
+(        ConfigurationService) s
+18 598 M (555:) s
+48 598 M
+(                Start: 443243\(device1_intouch.log\)) s
+18 587 M (556:) s
+48 587 M
+(                Completed: 443244\(device1_intouch.log\)) s
+18 576 M (557:) s
+48 576 M
+(                Elapsed Time: 0 ms) s
+18 565 M (558:) s
+48 565 M
+(        LandingPadService) s
+18 554 M (559:) s
+48 554 M
+(                Start: 443245\(device1_intouch.log\)) s
+18 543 M (560:) s
+48 543 M
+(                Completed: 443246\(device1_intouch.log\)) s
+18 532 M (561:) s
+48 532 M
+(                Elapsed Time: 2 ms) s
+18 521 M (562:) s
+48 521 M
+(        PortConfigurationService) s
+18 510 M (563:) s
+48 510 M
+(                Start: 443260\(device1_intouch.log\)) s
+18 499 M (564:) s
+48 499 M
+(                Completed: 443261\(device1_intouch.log\)) s
+18 488 M (565:) s
+48 488 M
+(                Elapsed Time: 73 ms) s
+18 477 M (566:) s
+48 477 M
+(        CacheService) s
+18 466 M (567:) s
+48 466 M
+(                Start: 443262\(device1_intouch.log\)) s
+18 455 M (568:) s
+48 455 M
+(                Completed: 443263\(device1_intouch.log\)) s
+18 444 M (569:) s
+48 444 M
+(                Elapsed Time: 890 ms) s
+18 433 M (570:) s
+48 433 M
+(        ThemingService) s
+18 422 M (571:) s
+48 422 M
+(                Start: 443247\(device1_intouch.log\)) s
+18 411 M (572:) s
+48 411 M
+(                Completed: 443248\(device1_intouch.log\)) s
+18 400 M (573:) s
+48 400 M
+(                Elapsed Time: 0 ms) s
+18 389 M (574:) s
+48 389 M
+(        StagingService) s
+18 378 M (575:) s
+48 378 M
+(                Start: 443264\(device1_intouch.log\)) s
+18 367 M (576:) s
+48 367 M
+(                Completed: 443280\(device1_intouch.log\)) s
+18 356 M (577:) s
+48 356 M
+(                Elapsed Time: 7186 ms) s
+18 345 M (578:) s
+48 345 M
+(        DeviceIOService) s
+18 334 M (579:) s
+48 334 M
+(                Start: 443249\(device1_intouch.log\)) s
+18 323 M (580:) s
+48 323 M
+(                Completed: 443254\(device1_intouch.log\)) s
+18 312 M (581:) s
+48 312 M
+(                Elapsed Time: 34 ms) s
+18 301 M (582:) s
+48 301 M
+(        BellService) s
+18 290 M (583:) s
+48 290 M
+(                Start: 443281\(device1_intouch.log\)) s
+18 279 M (584:) s
+48 279 M
+(                Completed: 443282\(device1_intouch.log\)) s
+18 268 M (585:) s
+48 268 M
+(                Elapsed Time: 2 ms) s
+18 257 M (586:) s
+48 257 M
+(        GateService) s
+18 246 M (587:) s
+48 246 M
+(                Start: 443255\(device1_intouch.log\)) s
+18 235 M (588:) s
+48 235 M
+(                Completed: 443259\(device1_intouch.log\)) s
+18 224 M (589:) s
+48 224 M
+(                Elapsed Time: 6 ms) s
+18 213 M (590:) s
+48 213 M
+(        ReaderDataService) s
+18 202 M (591:) s
+48 202 M
+(                Start: 443284\(device1_intouch.log\)) s
+18 191 M (592:) s
+48 191 M
+(                Completed: 443287\(device1_intouch.log\)) s
+18 180 M (593:) s
+48 180 M
+(                Elapsed Time: 8 ms) s
+18 169 M (594:) s
+48 169 M
+(        BiometricService) s
+18 158 M (595:) s
+48 158 M
+(                Start: 443288\(device1_intouch.log\)) s
+18 147 M (596:) s
+48 147 M
+(                Completed: 443325\(device1_intouch.log\)) s
+18 136 M (597:) s
+48 136 M
+(                Elapsed Time: 245 ms) s
+18 125 M (598:) s
+48 125 M
+(        StateManager) s
+18 114 M (599:) s
+48 114 M
+(                Start: 443326\(device1_intouch.log\)) s
+18 103 M (600:) s
+48 103 M
+(                Completed: 443327\(device1_intouch.log\)) s
+18 92 M (601:) s
+48 92 M
+(                Elapsed Time: 1821 ms) s
+18 81 M (602:) s
+48 81 M
+(        OfflineSmartviewService) s
+18 70 M (603:) s
+48 70 M
+(                Start: 443335\(device1_intouch.log\)) s
+18 59 M (604:) s
+48 59 M
+(                Completed: 443336\(device1_intouch.log\)) s
+18 48 M (605:) s
+48 48 M
+(                Elapsed Time: 20 ms) s
+18 37 M (606:) s
+48 37 M
+(        AVFeedbackService) s
+18 26 M (607:) s
+48 26 M
+(                Start: 443328\(device1_intouch.log\)) s
+18 15 M (608:) s
+48 15 M
+(                Completed: 443334\(device1_intouch.log\)) s
+18 4 M (609:) s
+48 4 M
+(                Elapsed Time: 34 ms) s
+_R
+S
+%%Page: (11) 11
+%%BeginPageSetup
+_S
+50 50 translate
+/pagenum 11 def
+/fname (device1_intouch.log.rpt) def
+/fdir (.) def
+/ftail (device1_intouch.log.rpt) def
+% User defined strings:
+/fmodstr (Tue Apr 18 16:00:52 2017) def
+/pagenumstr (11) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+do_header
+18 664 M (610:) s
+48 664 M
+(        DatabaseThreads) s
+18 653 M (611:) s
+48 653 M
+(                Start: 443395\(device1_intouch.log\)) s
+18 642 M (612:) s
+48 642 M
+(                Completed: 443407\(device1_intouch.log\)) s
+18 631 M (613:) s
+48 631 M
+(                Elapsed Time: 3485 ms) s
+18 620 M (614:) s
+48 620 M
+(        SoftLoadService) s
+18 609 M (615:) s
+48 609 M
+(                Start: 443399\(device1_intouch.log\)) s
+18 598 M (616:) s
+48 598 M
+(                Completed: 443405\(device1_intouch.log\)) s
+18 587 M (617:) s
+48 587 M
+(                Elapsed Time: 3176 ms) s
+18 576 M (618:) s
+48 576 M
+(        WATCHDOG) s
+18 565 M (619:) s
+48 565 M
+(                Start: 443400\(device1_intouch.log\)) s
+18 554 M (620:) s
+48 554 M
+(                Completed: 443401\(device1_intouch.log\)) s
+18 543 M (621:) s
+48 543 M
+(                Elapsed Time: 493 ms) s
+18 532 M (622:) s
+48 532 M
+(        ProtocolService) s
+18 521 M (623:) s
+48 521 M
+(                Start: 443398\(device1_intouch.log\)) s
+18 510 M (624:) s
+48 510 M
+(                Completed: Not completed\(device1_intouch.log\)) s
+18 499 M (625:) s
+48 499 M
+(                Elapsed Time: ) s
+18 488 M (626:) s
+48 488 M
+(        DiagnosticsService) s
+18 477 M (627:) s
+48 477 M
+(                Start: 443397\(device1_intouch.log\)) s
+18 466 M (628:) s
+48 466 M
+(                Completed: 443402\(device1_intouch.log\)) s
+18 455 M (629:) s
+48 455 M
+(                Elapsed Time: 563 ms) s
+18 444 M (630:) s
+48 444 M
+(        *** Services not successfully started: ProtocolService) s
+_R
+S
+%%Trailer
+%%Pages: 11
+%%DocumentNeededResources: font Courier-Bold Courier 
+%%EOF

@@ -1,0 +1,432 @@
+// Copyright 2017 Sam Pickell
+#include <boost/regex.hpp>
+#include <cstdlib>
+#include <iostream>
+#include <string>
+#include <fstream>
+#include <vector>
+#include <sstream>
+#include "boost/date_time/gregorian/gregorian.hpp"
+#include "boost/date_time/posix_time/posix_time.hpp"
+
+void populate_vectors(std::vector<std::string>& a, std::vector<std::string>& b,
+                      std::vector<std::string>& c, std::vector<std::string>& d);
+void print_stats(std::vector<std::string>& a, std::vector<std::string>& b,
+                     std::vector<std::string>& c, std::vector<std::string>& d,
+                     std::ofstream& fout, std::ifstream& fin, std::string name);
+
+int main(int argc, char* argv[]) {
+  int line_number = 1;
+
+  // regex
+  boost::regex start_up("[0-9]{4}-[0-9]{2}-[0-9]{2}\\s[0-9]{2}:[0-9]{2}:[0-9]"
+"{2}:\\s[(]log[.]c[.]166[)]\\sserver\\sstarted\\s");
+  boost::regex success("[0-9]{4}-[0-9]{2}-[0-9]{2}\\s[0-9]{2}:[0-9]{2}:[0-9]{2}"
+"[.][0-9]{3}:INFO:oejs[.]AbstractConnector:Started\\sSelectChannelConnector@[0-"
+"9]{1}[.][0-9]{1}[.][0-9]{1}[.][0-9]{1}:[0-9]{4}");
+  boost::regex services("Starting\\sService[.].*");
+  boost::regex service_success("Service\\sstarted\\ssuccessfully[.].*");
+  boost::regex soft_start("[A-Z]{1}[a-z]{2}\\s[0-9]{2}\\s[0-9]{2}:[0-9]{2}:[0-9"
+"]{2}\\s.*Install\\sstarted\\s");
+  boost::regex soft_orig("[A-Z]{1}[a-z]{2}\\s[0-9]{2}\\s[0-9]{2}:[0-9]{2}:[0-9"
+"]{2}\\s[(]none[)]\\s/stagingarea/scripts/install-rollback[.]sh:\\sintouch-appl"
+"ication-base-.*[.]armv6jel_vfp[.]rpm\\swas\\spreviously\\sinstalled[,]\\saddin"
+"g\\srpm\\sto\\srollback\\slist");
+  boost::regex soft_end("[A-Z]{1}[a-z]{2}\\s[0-9]{2}\\s[0-9]{2}:[0-9]{2}:[0-9"
+"]{2}\\s[(]none[)]\\s/stagingarea/scripts/install-rollback[.]sh:\\sExitValue\\s"
+"from\\sinstall\\scommand\\s:\\s0");
+  boost::regex soft_new_ver("[A-Z]{1}[a-z]{2}\\s[0-9]{2}\\s[0-9]{2}:[0-9]{2}:[0"
+"-9]{2}\\s[(]none[)]\\s/stagingarea/scripts/install-rollback[.]sh:\\sProcessing"
+"\\s43\\sof\\s45\\sintouch-platform-base-.*[.]armv6jel_vfp[.]rpm ...");
+
+  // vectors
+  std::vector<std::string> service_name;
+  std::vector<std::string> service_start;
+  std::vector<std::string> service_end;
+  std::vector<std::string> service_elapsed_time;
+
+  // time
+  boost::posix_time::time_duration diff;
+  std::string time_start;
+  std::string time_end;
+  std::string s_total_time;
+
+  std::ifstream fin;
+  std::ofstream fout;
+
+  std::string str_start = " ";
+  std::string str_end = " ";
+  std::string str_orig_ver = " ";
+  std::string str_new_ver = " ";
+  std::string str_elapsed = " ";
+  std::string s, t;
+  std::string service_1;
+  std::string input_file = argv[1];
+  std::string output_file = input_file;
+  output_file.append(".rpt");
+
+  int start_line;
+
+  // Open files
+  fin.open(input_file.c_str());
+  if (fin.fail()) {
+      std::cout << "Failed to open file" << std::endl;
+      exit(1);
+    }
+  fout.open(output_file.c_str());
+  if (fout.fail()) {
+      std::cout << "Failed to open output file" << std::endl;
+      exit(1);
+    }
+  // End opening
+
+  std::getline(fin, s);
+  while (!fin.eof()) {
+     // start of service startup
+
+    if (boost::regex_match(t, start_up) && boost::regex_match(s, services)) {
+        std::stringstream out;
+
+        for (unsigned int i = 0; i < service_name.size(); i++) {
+            std::string finder = service_name.at(i);
+            std::size_t pos = s.find(finder);
+            if (pos != std::string::npos) {
+                service_1 = finder;
+                out << line_number;
+                service_start.at(i) = out.str();
+                break;
+              }
+          }
+      }
+
+    if (boost::regex_match(t, start_up) &&
+        boost::regex_match(s, service_success)) {
+        std::stringstream out;
+        unsigned int i = 0;
+
+            for (i = 0; i < service_name.size(); i++) {
+                std::string finder = service_name.at(i);
+                std::size_t pos = s.find(finder);
+                // if (service_1 == service_name.at(i))
+                if (pos != std::string::npos &&
+                    (service_start.at(i) != "Not started")) {
+                    out << line_number;
+                    service_end.at(i) = out.str();
+
+                    // grab elapsed time
+                    std::size_t my_start = 0;
+                    std::size_t my_end = 0;
+                    std::string ela_time;
+
+                    my_start = s.find("(");
+                    if (my_start != std::string::npos) {
+                        ++my_start;
+                        my_end = s.find(")");
+                        if (my_end != std::string::npos) {
+                            ela_time = s.substr(my_start, my_end - my_start);
+                          }
+                      }
+                    service_elapsed_time.at(i) = ela_time;
+                    break;
+                  }
+              }
+      }
+     // end of service startup
+
+    // start of software upgrades
+
+    if (boost::regex_match(s, soft_start)) {
+        str_start = s;
+        start_line = line_number;
+      }
+    if (boost::regex_match(s, soft_end)) {
+        str_end = s;
+      }
+    if (boost::regex_match(s, soft_orig)) {
+        str_orig_ver = s;
+      }
+    if (boost::regex_match(s, soft_new_ver)) {
+        str_new_ver = s;
+      }
+
+    if (str_start != " " && str_end != " " &&
+        str_orig_ver != " " && str_new_ver != " ") {
+        // get elapsed time vars
+        std::string my_time_start = str_start.substr(0, 15);
+        std::string my_time_end = str_end.substr(0, 15);
+
+        int w, x, y;
+
+        w = atoi((my_time_start.substr(7, 2)).c_str());
+        x = atoi((my_time_start.substr(10, 2)).c_str());
+        y = atoi((my_time_start.substr(13, 2)).c_str());
+
+        boost::posix_time::time_duration time_to_start(w, x, y, 0);
+
+        w = atoi((my_time_end.substr(7, 2)).c_str());
+        x = atoi((my_time_end.substr(10, 2)).c_str());
+        y = atoi((my_time_end.substr(13, 2)).c_str());
+
+        boost::posix_time::time_duration time_to_end(w, x, y, 0);
+        boost::posix_time::time_duration my_diff;
+        my_diff = time_to_end - time_to_start;
+
+        // clean up orig_ver and new_ver
+        // grab orig
+        std::size_t my_start = 0;
+        std::size_t my_end = 0;
+        std::string temp;
+
+        my_start = str_orig_ver.find("base-");
+        if (my_start != std::string::npos) {
+          my_start+=5;
+          my_end = str_orig_ver.find("armv6");
+          if (my_end != std::string::npos) {
+            temp = str_orig_ver.substr(my_start, (my_end - my_start) - 1);
+          }
+        }
+        str_orig_ver = temp;
+
+        // now grab new
+        my_start = 0;
+        my_end = 0;
+
+        my_start = str_new_ver.find("base-");
+        if (my_start != std::string::npos) {
+          my_start+=5;
+          my_end = str_new_ver.find("armv6");
+          if (my_end != std::string::npos) {
+            temp = str_new_ver.substr(my_start, (my_end - my_start) - 1);
+          }
+        }
+        str_new_ver = temp;
+
+        // print out
+        fout << "=== Softload ===" << std::endl;
+        fout << start_line << "(" << input_file << ") : "
+             << str_start.substr(0, 15) << " Softload Start" << std::endl;
+        fout << "\tOriginal version ==> " << str_orig_ver << std::endl;
+        fout << "\tNew version ==> " << str_new_ver << std::endl;
+        fout << "\tElapsed time (sec) ==> " << my_diff.total_seconds()
+             << std::endl;
+        fout << line_number << "(" << input_file << ") : "
+             << str_end.substr(0, 15) << " Softload Completed" << std::endl;
+        str_start = " ";
+        str_end = " ";
+        str_orig_ver = " ";
+        str_new_ver = " ";
+      }
+
+    // end of software upgrades
+
+      if (boost::regex_match(t, start_up) && boost::regex_match(s, success)) {
+          // success
+          fout << line_number << "(" << input_file << "): " << s.substr(0, 19)
+               << " Boot Completed" << std::endl;
+          // boot time
+          time_end = s.substr(0, 19);
+          boost::posix_time::ptime start =
+            boost::posix_time::time_from_string(time_start);
+          boost::posix_time::ptime end =
+            boost::posix_time::time_from_string(time_end);
+          diff = end - start;
+          fout << "\tBoot Time: " << diff.total_milliseconds() << "ms"
+               << std::endl;
+          fout << std::endl;
+          t = "empty";
+
+          // service printout
+          print_stats(service_name, service_start, service_end,
+                      service_elapsed_time, fout, fin, input_file);
+
+        } else if (boost::regex_match(t, start_up) &&
+               boost::regex_match(s, start_up)) {
+          // failure
+          fout << "**** Incomplete boot ****" << std::endl;
+          fout << std::endl;
+          t = "empty";
+
+          // service printout
+          print_stats(service_name, service_start, service_end,
+                      service_elapsed_time, fout, fin, input_file);
+        }
+
+        if (boost::regex_match(s, start_up)) {
+          fout << "=== Device boot ===" << std::endl;
+          fout << line_number << "(" << input_file << "): " << s.substr(0, 19)
+               << " Boot Start" << std::endl;
+          time_start = s.substr(0, 19);
+          t = s;
+
+          // service startup
+          populate_vectors(service_name, service_start, service_end,
+                   service_elapsed_time);
+        }
+      std::getline(fin, s);
+      line_number++;
+    }
+
+  fin.close();
+  fout.close();
+
+  return 0;
+}
+
+void populate_vectors(std::vector<std::string>& a, std::vector<std::string>& b,
+                     std::vector<std::string>& c, std::vector<std::string>& d) {
+  a.push_back(" Logging");
+  b.push_back("Not started");
+  c.push_back("Not completed");
+  d.push_back("");
+
+  a.push_back(" DatabaseInitialize");
+  b.push_back("Not started");
+  c.push_back("Not completed");
+  d.push_back("");
+
+  a.push_back(" MessagingService");
+  b.push_back("Not started");
+  c.push_back("Not completed");
+  d.push_back("");
+
+  a.push_back(" HealthMonitorService");
+  b.push_back("Not started");
+  c.push_back("Not completed");
+  d.push_back("");
+
+  a.push_back(" Persistence");
+  b.push_back("Not started");
+  c.push_back("Not completed");
+  d.push_back("");
+
+  a.push_back(" ConfigurationService");
+  b.push_back("Not started");
+  c.push_back("Not completed");
+  d.push_back("");
+
+  a.push_back(" LandingPadService");
+  b.push_back("Not started");
+  c.push_back("Not completed");
+  d.push_back("");
+
+  a.push_back(" PortConfigurationService");
+  b.push_back("Not started");
+  c.push_back("Not completed");
+  d.push_back("");
+
+  a.push_back(" CacheService");
+  b.push_back("Not started");
+  c.push_back("Not completed");
+  d.push_back("");
+
+  a.push_back(" ThemingService");
+  b.push_back("Not started");
+  c.push_back("Not completed");
+  d.push_back("");
+
+  a.push_back(" StagingService");
+  b.push_back("Not started");
+  c.push_back("Not completed");
+  d.push_back("");
+
+  a.push_back(" DeviceIOService");
+  b.push_back("Not started");
+  c.push_back("Not completed");
+  d.push_back("");
+
+  a.push_back(" BellService");
+  b.push_back("Not started");
+  c.push_back("Not completed");
+  d.push_back("");
+
+  a.push_back(" GateService");
+  b.push_back("Not started");
+  c.push_back("Not completed");
+  d.push_back("");
+
+  a.push_back(" ReaderDataService");
+  b.push_back("Not started");
+  c.push_back("Not completed");
+  d.push_back("");
+
+  a.push_back(" BiometricService");
+  b.push_back("Not started");
+  c.push_back("Not completed");
+  d.push_back("");
+
+  a.push_back(" StateManager");
+  b.push_back("Not started");
+  c.push_back("Not completed");
+  d.push_back("");
+
+  a.push_back(" OfflineSmartviewService");
+  b.push_back("Not started");
+  c.push_back("Not completed");
+  d.push_back("");
+
+  a.push_back(" AVFeedbackService");
+  b.push_back("Not started");
+  c.push_back("Not completed");
+  d.push_back("");
+
+  a.push_back(" DatabaseThreads");
+  b.push_back("Not started");
+  c.push_back("Not completed");
+  d.push_back("");
+
+  a.push_back(" SoftLoadService");
+  b.push_back("Not started");
+  c.push_back("Not completed");
+  d.push_back("");
+
+  a.push_back(" WATCHDOG");
+  b.push_back("Not started");
+  c.push_back("Not completed");
+  d.push_back("");
+
+  a.push_back(" ProtocolService");
+  b.push_back("Not started");
+  c.push_back("Not completed");
+  d.push_back("");
+
+  a.push_back(" DiagnosticsService");
+  b.push_back("Not started");
+  c.push_back("Not completed");
+  d.push_back("");
+}
+
+void print_stats(std::vector<std::string>& a, std::vector<std::string>& b,
+                 std::vector<std::string>& c, std::vector<std::string>& d,
+                 std::ofstream& fout, std::ifstream& fin, std::string name) {
+  std::vector<std::string> boot_failures;
+  unsigned int my_size = a.size();
+
+  fout << "Services" << std::endl;
+
+  for (unsigned int i = 0; i < my_size; i++) {
+      a.at(i).erase(0, 1);
+      fout << "\t" << a.at(i) << std::endl;
+      fout << "\t\tStart: " << b.at(i)
+           << "(" << name << ")" << std::endl;
+      fout << "\t\tCompleted: " << c.at(i)
+           << "(" << name << ")" <<  std::endl;
+      if (c.at(i) == "Not completed") {
+          boot_failures.push_back(a.at(i));
+        }
+      fout << "\t\tElapsed Time: " << d.at(i) << std::endl;
+    }
+  if (boot_failures.size() > 0) {
+      fout << "\t*** Services not successfully started: ";
+      for (unsigned int i = 0; i < boot_failures.size(); i++) {
+          if (i != (boot_failures.size() - 1)) {
+              fout << boot_failures.at(i) << ", ";
+            } else {
+              fout << boot_failures.at(i) << std::endl;
+            }
+        }
+    }
+  a.clear();
+  b.clear();
+  c.clear();
+  d.clear();
+}

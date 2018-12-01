@@ -1,0 +1,1800 @@
+%!PS-Adobe-3.0
+%%BoundingBox: 50 50 562 742
+%%Title: Enscript Output
+%%Creator: GNU Enscript 1.6.5.90
+%%CreationDate: Mon Apr 24 20:02:33 2017
+%%Orientation: Portrait
+%%Pages: (atend)
+%%DocumentMedia: Letter 612 792 0 () ()
+%%DocumentNeededResources: (atend)
+%%EndComments
+%%BeginProlog
+%%BeginResource: procset Enscript-Prolog 1.6.5 90
+%
+% Procedures.
+%
+
+/_S {	% save current state
+  /_s save def
+} def
+/_R {	% restore from saved state
+  _s restore
+} def
+
+/S {	% showpage protecting gstate
+  gsave
+  showpage
+  grestore
+} bind def
+
+/MF {	% fontname newfontname -> -	make a new encoded font
+  /newfontname exch def
+  /fontname exch def
+
+  /fontdict fontname findfont def
+  /newfont fontdict maxlength dict def
+
+  fontdict {
+    exch
+    dup /FID eq {
+      % skip FID pair
+      pop pop
+    } {
+      % copy to the new font dictionary
+      exch newfont 3 1 roll put
+    } ifelse
+  } forall
+
+  newfont /FontName newfontname put
+
+  % insert only valid encoding vectors
+  encoding_vector length 256 eq {
+    newfont /Encoding encoding_vector put
+  } if
+
+  newfontname newfont definefont pop
+} def
+
+/MF_PS { % fontname newfontname -> -	make a new font preserving its enc
+  /newfontname exch def
+  /fontname exch def
+
+  /fontdict fontname findfont def
+  /newfont fontdict maxlength dict def
+
+  fontdict {
+    exch
+    dup /FID eq {
+      % skip FID pair
+      pop pop
+    } {
+      % copy to the new font dictionary
+      exch newfont 3 1 roll put
+    } ifelse
+  } forall
+
+  newfont /FontName newfontname put
+
+  newfontname newfont definefont pop
+} def
+
+/SF { % fontname width height -> -	set a new font
+  /height exch def
+  /width exch def
+
+  findfont
+  [width 0 0 height 0 0] makefont setfont
+} def
+
+/SUF { % fontname width height -> -	set a new user font
+  /height exch def
+  /width exch def
+
+  /F-gs-user-font MF
+  /F-gs-user-font width height SF
+} def
+
+/SUF_PS { % fontname width height -> -	set a new user font preserving its enc
+  /height exch def
+  /width exch def
+
+  /F-gs-user-font MF_PS
+  /F-gs-user-font width height SF
+} def
+
+/M {moveto} bind def
+/s {show} bind def
+
+/Box {	% x y w h -> -			define box path
+  /d_h exch def /d_w exch def /d_y exch def /d_x exch def
+  d_x d_y  moveto
+  d_w 0 rlineto
+  0 d_h rlineto
+  d_w neg 0 rlineto
+  closepath
+} def
+
+/bgs {	% x y height blskip gray str -> -	show string with bg color
+  /str exch def
+  /gray exch def
+  /blskip exch def
+  /height exch def
+  /y exch def
+  /x exch def
+
+  gsave
+    x y blskip sub str stringwidth pop height Box
+    gray setgray
+    fill
+  grestore
+  x y M str s
+} def
+
+/bgcs { % x y height blskip red green blue str -> -  show string with bg color
+  /str exch def
+  /blue exch def
+  /green exch def
+  /red exch def
+  /blskip exch def
+  /height exch def
+  /y exch def
+  /x exch def
+
+  gsave
+    x y blskip sub str stringwidth pop height Box
+    red green blue setrgbcolor
+    fill
+  grestore
+  x y M str s
+} def
+
+% Highlight bars.
+/highlight_bars {	% nlines lineheight output_y_margin gray -> -
+  gsave
+    setgray
+    /ymarg exch def
+    /lineheight exch def
+    /nlines exch def
+
+    % This 2 is just a magic number to sync highlight lines to text.
+    0 d_header_y ymarg sub 2 sub translate
+
+    /cw d_output_w cols div def
+    /nrows d_output_h ymarg 2 mul sub lineheight div cvi def
+
+    % for each column
+    0 1 cols 1 sub {
+      cw mul /xp exch def
+
+      % for each rows
+      0 1 nrows 1 sub {
+        /rn exch def
+        rn lineheight mul neg /yp exch def
+        rn nlines idiv 2 mod 0 eq {
+	  % Draw highlight bar.  4 is just a magic indentation.
+	  xp 4 add yp cw 8 sub lineheight neg Box fill
+	} if
+      } for
+    } for
+
+  grestore
+} def
+
+% Line highlight bar.
+/line_highlight {	% x y width height gray -> -
+  gsave
+    /gray exch def
+    Box gray setgray fill
+  grestore
+} def
+
+% Column separator lines.
+/column_lines {
+  gsave
+    .1 setlinewidth
+    0 d_footer_h translate
+    /cw d_output_w cols div def
+    1 1 cols 1 sub {
+      cw mul 0 moveto
+      0 d_output_h rlineto stroke
+    } for
+  grestore
+} def
+
+% Column borders.
+/column_borders {
+  gsave
+    .1 setlinewidth
+    0 d_footer_h moveto
+    0 d_output_h rlineto
+    d_output_w 0 rlineto
+    0 d_output_h neg rlineto
+    closepath stroke
+  grestore
+} def
+
+% Do the actual underlay drawing
+/draw_underlay {
+  ul_style 0 eq {
+    ul_str true charpath stroke
+  } {
+    ul_str show
+  } ifelse
+} def
+
+% Underlay
+/underlay {	% - -> -
+  gsave
+    0 d_page_h translate
+    d_page_h neg d_page_w atan rotate
+
+    ul_gray setgray
+    ul_font setfont
+    /dw d_page_h dup mul d_page_w dup mul add sqrt def
+    ul_str stringwidth pop dw exch sub 2 div ul_h_ptsize -2 div moveto
+    draw_underlay
+  grestore
+} def
+
+/user_underlay {	% - -> -
+  gsave
+    ul_x ul_y translate
+    ul_angle rotate
+    ul_gray setgray
+    ul_font setfont
+    0 0 ul_h_ptsize 2 div sub moveto
+    draw_underlay
+  grestore
+} def
+
+% Page prefeed
+/page_prefeed {		% bool -> -
+  statusdict /prefeed known {
+    statusdict exch /prefeed exch put
+  } {
+    pop
+  } ifelse
+} def
+
+% Wrapped line markers
+/wrapped_line_mark {	% x y charwith charheight type -> -
+  /type exch def
+  /h exch def
+  /w exch def
+  /y exch def
+  /x exch def
+
+  type 2 eq {
+    % Black boxes (like TeX does)
+    gsave
+      0 setlinewidth
+      x w 4 div add y M
+      0 h rlineto w 2 div 0 rlineto 0 h neg rlineto
+      closepath fill
+    grestore
+  } {
+    type 3 eq {
+      % Small arrows
+      gsave
+        .2 setlinewidth
+        x w 2 div add y h 2 div add M
+        w 4 div 0 rlineto
+        x w 4 div add y lineto stroke
+
+        x w 4 div add w 8 div add y h 4 div add M
+        x w 4 div add y lineto
+	w 4 div h 8 div rlineto stroke
+      grestore
+    } {
+      % do nothing
+    } ifelse
+  } ifelse
+} def
+
+% EPSF import.
+
+/BeginEPSF {
+  /b4_Inc_state save def    		% Save state for cleanup
+  /dict_count countdictstack def	% Count objects on dict stack
+  /op_count count 1 sub def		% Count objects on operand stack
+  userdict begin
+  /showpage { } def
+  0 setgray 0 setlinecap
+  1 setlinewidth 0 setlinejoin
+  10 setmiterlimit [ ] 0 setdash newpath
+  /languagelevel where {
+    pop languagelevel
+    1 ne {
+      false setstrokeadjust false setoverprint
+    } if
+  } if
+} bind def
+
+/EndEPSF {
+  count op_count sub { pos } repeat	% Clean up stacks
+  countdictstack dict_count sub { end } repeat
+  b4_Inc_state restore
+} bind def
+
+% Check PostScript language level.
+/languagelevel where {
+  pop /gs_languagelevel languagelevel def
+} {
+  /gs_languagelevel 1 def
+} ifelse
+%%EndResource
+%%BeginResource: procset Enscript-Encoding-88591 1.6.5 90
+/encoding_vector [
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/space        	/exclam       	/quotedbl     	/numbersign   	
+/dollar       	/percent      	/ampersand    	/quoteright   	
+/parenleft    	/parenright   	/asterisk     	/plus         	
+/comma        	/hyphen       	/period       	/slash        	
+/zero         	/one          	/two          	/three        	
+/four         	/five         	/six          	/seven        	
+/eight        	/nine         	/colon        	/semicolon    	
+/less         	/equal        	/greater      	/question     	
+/at           	/A            	/B            	/C            	
+/D            	/E            	/F            	/G            	
+/H            	/I            	/J            	/K            	
+/L            	/M            	/N            	/O            	
+/P            	/Q            	/R            	/S            	
+/T            	/U            	/V            	/W            	
+/X            	/Y            	/Z            	/bracketleft  	
+/backslash    	/bracketright 	/asciicircum  	/underscore   	
+/quoteleft    	/a            	/b            	/c            	
+/d            	/e            	/f            	/g            	
+/h            	/i            	/j            	/k            	
+/l            	/m            	/n            	/o            	
+/p            	/q            	/r            	/s            	
+/t            	/u            	/v            	/w            	
+/x            	/y            	/z            	/braceleft    	
+/bar          	/braceright   	/tilde        	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/space        	/exclamdown   	/cent         	/sterling     	
+/currency     	/yen          	/brokenbar    	/section      	
+/dieresis     	/copyright    	/ordfeminine  	/guillemotleft	
+/logicalnot   	/hyphen       	/registered   	/macron       	
+/degree       	/plusminus    	/twosuperior  	/threesuperior	
+/acute        	/mu           	/paragraph    	/bullet       	
+/cedilla      	/onesuperior  	/ordmasculine 	/guillemotright	
+/onequarter   	/onehalf      	/threequarters	/questiondown 	
+/Agrave       	/Aacute       	/Acircumflex  	/Atilde       	
+/Adieresis    	/Aring        	/AE           	/Ccedilla     	
+/Egrave       	/Eacute       	/Ecircumflex  	/Edieresis    	
+/Igrave       	/Iacute       	/Icircumflex  	/Idieresis    	
+/Eth          	/Ntilde       	/Ograve       	/Oacute       	
+/Ocircumflex  	/Otilde       	/Odieresis    	/multiply     	
+/Oslash       	/Ugrave       	/Uacute       	/Ucircumflex  	
+/Udieresis    	/Yacute       	/Thorn        	/germandbls   	
+/agrave       	/aacute       	/acircumflex  	/atilde       	
+/adieresis    	/aring        	/ae           	/ccedilla     	
+/egrave       	/eacute       	/ecircumflex  	/edieresis    	
+/igrave       	/iacute       	/icircumflex  	/idieresis    	
+/eth          	/ntilde       	/ograve       	/oacute       	
+/ocircumflex  	/otilde       	/odieresis    	/divide       	
+/oslash       	/ugrave       	/uacute       	/ucircumflex  	
+/udieresis    	/yacute       	/thorn        	/ydieresis    	
+] def
+%%EndResource
+%%EndProlog
+%%BeginSetup
+%%IncludeResource: font Courier-Bold
+%%IncludeResource: font Courier
+/HFpt_w 10 def
+/HFpt_h 10 def
+/Courier-Bold /HF-gs-font MF
+/HF /HF-gs-font findfont [HFpt_w 0 0 HFpt_h 0 0] makefont def
+/Courier /F-gs-font MF
+/F-gs-font 10 10 SF
+/#copies 1 def
+% Pagedevice definitions:
+gs_languagelevel 1 gt {
+  <<
+    /PageSize [612 792] 
+  >> setpagedevice
+} if
+%%BeginResource: procset Enscript-Header-simple 1.6.5 90
+
+/do_header {	% print default simple header
+  gsave
+    d_header_x d_header_y HFpt_h 3 div add translate
+
+    HF setfont
+    user_header_p {
+      5 0 moveto user_header_left_str show
+
+      d_header_w user_header_center_str stringwidth pop sub 2 div
+      0 moveto user_header_center_str show
+
+      d_header_w user_header_right_str stringwidth pop sub 5 sub
+      0 moveto user_header_right_str show
+    } {
+      5 0 moveto fname show
+      45 0 rmoveto fmodstr show
+      45 0 rmoveto pagenumstr show
+    } ifelse
+
+  grestore
+} def
+%%EndResource
+/d_page_w 512 def
+/d_page_h 692 def
+/d_header_x 0 def
+/d_header_y 677 def
+/d_header_w 512 def
+/d_header_h 15 def
+/d_footer_x 0 def
+/d_footer_y 0 def
+/d_footer_w 512 def
+/d_footer_h 0 def
+/d_output_w 512 def
+/d_output_h 677 def
+/cols 1 def
+%%EndSetup
+%%Page: (1) 1
+%%BeginPageSetup
+_S
+50 50 translate
+/pagenum 1 def
+/fname (main.cpp) def
+/fdir (.) def
+/ftail (main.cpp) def
+% User defined strings:
+/fmodstr (Tue Apr 18 16:10:56 2017) def
+/pagenumstr (1) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+do_header
+30 664 M (1:) s
+48 664 M
+(// Copyright 2017 Sam Pickell) s
+30 653 M (2:) s
+48 653 M
+(#include <boost/regex.hpp>) s
+30 642 M (3:) s
+48 642 M
+(#include <cstdlib>) s
+30 631 M (4:) s
+48 631 M
+(#include <iostream>) s
+30 620 M (5:) s
+48 620 M
+(#include <string>) s
+30 609 M (6:) s
+48 609 M
+(#include <fstream>) s
+30 598 M (7:) s
+48 598 M
+(#include <vector>) s
+30 587 M (8:) s
+48 587 M
+(#include <sstream>) s
+30 576 M (9:) s
+48 576 M
+(#include "boost/date_time/gregorian/gregorian.hpp") s
+24 565 M (10:) s
+48 565 M
+(#include "boost/date_time/posix_time/posix_time.hpp") s
+24 554 M (11:) s
+24 543 M (12:) s
+48 543 M
+(void populate_vectors\(std::vector<std::string>& a, std::vector<std::string>&) s
+5 532 M
+( b,) s
+24 521 M (13:) s
+48 521 M
+(                      std::vector<std::string>& c, std::vector<std::string>&) s
+5 510 M
+( d\);) s
+24 499 M (14:) s
+48 499 M
+(void print_stats\(std::vector<std::string>& a, std::vector<std::string>& b,) s
+24 488 M (15:) s
+48 488 M
+(                     std::vector<std::string>& c, std::vector<std::string>& ) s
+5 477 M
+(d,) s
+24 466 M (16:) s
+48 466 M
+(                     std::ofstream& fout, std::ifstream& fin, std::string na) s
+5 455 M
+(me\);) s
+24 444 M (17:) s
+24 433 M (18:) s
+48 433 M
+(int main\(int argc, char* argv[]\) {) s
+24 422 M (19:) s
+48 422 M
+(  int line_number = 1;) s
+24 411 M (20:) s
+24 400 M (21:) s
+48 400 M
+(  // regex) s
+24 389 M (22:) s
+48 389 M
+(  boost::regex start_up\("[0-9]{4}-[0-9]{2}-[0-9]{2}\\\\s[0-9]{2}:[0-9]{2}:[0-9) s
+5 378 M
+(]") s
+24 367 M (23:) s
+48 367 M
+("{2}:\\\\s[\(]log[.]c[.]166[\)]\\\\sserver\\\\sstarted\\\\s"\);) s
+24 356 M (24:) s
+48 356 M
+(  boost::regex success\("[0-9]{4}-[0-9]{2}-[0-9]{2}\\\\s[0-9]{2}:[0-9]{2}:[0-9]) s
+5 345 M
+({2}") s
+24 334 M (25:) s
+48 334 M
+("[.][0-9]{3}:INFO:oejs[.]AbstractConnector:Started\\\\sSelectChannelConnector@) s
+5 323 M
+([0-") s
+24 312 M (26:) s
+48 312 M
+("9]{1}[.][0-9]{1}[.][0-9]{1}[.][0-9]{1}:[0-9]{4}"\);) s
+24 301 M (27:) s
+48 301 M
+(  boost::regex services\("Starting\\\\sService[.].*"\);) s
+24 290 M (28:) s
+48 290 M
+(  boost::regex service_success\("Service\\\\sstarted\\\\ssuccessfully[.].*"\);) s
+24 279 M (29:) s
+48 279 M
+(  boost::regex soft_start\("[A-Z]{1}[a-z]{2}\\\\s[0-9]{2}\\\\s[0-9]{2}:[0-9]{2}:[) s
+5 268 M
+(0-9") s
+24 257 M (30:) s
+48 257 M
+("]{2}\\\\s.*Install\\\\sstarted\\\\s"\);) s
+24 246 M (31:) s
+48 246 M
+(  boost::regex soft_orig\("[A-Z]{1}[a-z]{2}\\\\s[0-9]{2}\\\\s[0-9]{2}:[0-9]{2}:[0) s
+5 235 M
+(-9") s
+24 224 M (32:) s
+48 224 M
+("]{2}\\\\s[\(]none[\)]\\\\s/stagingarea/scripts/install-rollback[.]sh:\\\\sintouch-a) s
+5 213 M
+(ppl") s
+24 202 M (33:) s
+48 202 M
+("ication-base-.*[.]armv6jel_vfp[.]rpm\\\\swas\\\\spreviously\\\\sinstalled[,]\\\\sad) s
+5 191 M
+(din") s
+24 180 M (34:) s
+48 180 M
+("g\\\\srpm\\\\sto\\\\srollback\\\\slist"\);) s
+24 169 M (35:) s
+48 169 M
+(  boost::regex soft_end\("[A-Z]{1}[a-z]{2}\\\\s[0-9]{2}\\\\s[0-9]{2}:[0-9]{2}:[0-) s
+5 158 M
+(9") s
+24 147 M (36:) s
+48 147 M
+("]{2}\\\\s[\(]none[\)]\\\\s/stagingarea/scripts/install-rollback[.]sh:\\\\sExitValue) s
+5 136 M
+(\\\\s") s
+24 125 M (37:) s
+48 125 M
+("from\\\\sinstall\\\\scommand\\\\s:\\\\s0"\);) s
+24 114 M (38:) s
+48 114 M
+(  boost::regex soft_new_ver\("[A-Z]{1}[a-z]{2}\\\\s[0-9]{2}\\\\s[0-9]{2}:[0-9]{2}) s
+5 103 M
+(:[0") s
+24 92 M (39:) s
+48 92 M
+("-9]{2}\\\\s[\(]none[\)]\\\\s/stagingarea/scripts/install-rollback[.]sh:\\\\sProcess) s
+5 81 M
+(ing") s
+24 70 M (40:) s
+48 70 M
+("\\\\s43\\\\sof\\\\s45\\\\sintouch-platform-base-.*[.]armv6jel_vfp[.]rpm ..."\);) s
+24 59 M (41:) s
+24 48 M (42:) s
+48 48 M
+(  // vectors) s
+24 37 M (43:) s
+48 37 M
+(  std::vector<std::string> service_name;) s
+24 26 M (44:) s
+48 26 M
+(  std::vector<std::string> service_start;) s
+24 15 M (45:) s
+48 15 M
+(  std::vector<std::string> service_end;) s
+24 4 M (46:) s
+48 4 M
+(  std::vector<std::string> service_elapsed_time;) s
+_R
+S
+%%Page: (2) 2
+%%BeginPageSetup
+_S
+50 50 translate
+/pagenum 2 def
+/fname (main.cpp) def
+/fdir (.) def
+/ftail (main.cpp) def
+% User defined strings:
+/fmodstr (Tue Apr 18 16:10:56 2017) def
+/pagenumstr (2) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+do_header
+24 664 M (47:) s
+24 653 M (48:) s
+48 653 M
+(  // time) s
+24 642 M (49:) s
+48 642 M
+(  boost::posix_time::time_duration diff;) s
+24 631 M (50:) s
+48 631 M
+(  std::string time_start;) s
+24 620 M (51:) s
+48 620 M
+(  std::string time_end;) s
+24 609 M (52:) s
+48 609 M
+(  std::string s_total_time;) s
+24 598 M (53:) s
+24 587 M (54:) s
+48 587 M
+(  std::ifstream fin;) s
+24 576 M (55:) s
+48 576 M
+(  std::ofstream fout;) s
+24 565 M (56:) s
+24 554 M (57:) s
+48 554 M
+(  std::string str_start = " ";) s
+24 543 M (58:) s
+48 543 M
+(  std::string str_end = " ";) s
+24 532 M (59:) s
+48 532 M
+(  std::string str_orig_ver = " ";) s
+24 521 M (60:) s
+48 521 M
+(  std::string str_new_ver = " ";) s
+24 510 M (61:) s
+48 510 M
+(  std::string str_elapsed = " ";) s
+24 499 M (62:) s
+48 499 M
+(  std::string s, t;) s
+24 488 M (63:) s
+48 488 M
+(  std::string service_1;) s
+24 477 M (64:) s
+48 477 M
+(  std::string input_file = argv[1];) s
+24 466 M (65:) s
+48 466 M
+(  std::string output_file = input_file;) s
+24 455 M (66:) s
+48 455 M
+(  output_file.append\(".rpt"\);) s
+24 444 M (67:) s
+24 433 M (68:) s
+48 433 M
+(  int start_line;) s
+24 422 M (69:) s
+24 411 M (70:) s
+48 411 M
+(  // Open files) s
+24 400 M (71:) s
+48 400 M
+(  fin.open\(input_file.c_str\(\)\);) s
+24 389 M (72:) s
+48 389 M
+(  if \(fin.fail\(\)\) {) s
+24 378 M (73:) s
+48 378 M
+(      std::cout << "Failed to open file" << std::endl;) s
+24 367 M (74:) s
+48 367 M
+(      exit\(1\);) s
+24 356 M (75:) s
+48 356 M
+(    }) s
+24 345 M (76:) s
+48 345 M
+(  fout.open\(output_file.c_str\(\)\);) s
+24 334 M (77:) s
+48 334 M
+(  if \(fout.fail\(\)\) {) s
+24 323 M (78:) s
+48 323 M
+(      std::cout << "Failed to open output file" << std::endl;) s
+24 312 M (79:) s
+48 312 M
+(      exit\(1\);) s
+24 301 M (80:) s
+48 301 M
+(    }) s
+24 290 M (81:) s
+48 290 M
+(  // End opening) s
+24 279 M (82:) s
+24 268 M (83:) s
+48 268 M
+(  std::getline\(fin, s\);) s
+24 257 M (84:) s
+48 257 M
+(  while \(!fin.eof\(\)\) {) s
+24 246 M (85:) s
+48 246 M
+(     // start of service startup) s
+24 235 M (86:) s
+24 224 M (87:) s
+48 224 M
+(    if \(boost::regex_match\(t, start_up\) && boost::regex_match\(s, services\)\) ) s
+5 213 M
+({) s
+24 202 M (88:) s
+48 202 M
+(        std::stringstream out;) s
+24 191 M (89:) s
+24 180 M (90:) s
+48 180 M
+(        for \(unsigned int i = 0; i < service_name.size\(\); i++\) {) s
+24 169 M (91:) s
+48 169 M
+(            std::string finder = service_name.at\(i\);) s
+24 158 M (92:) s
+48 158 M
+(            std::size_t pos = s.find\(finder\);) s
+24 147 M (93:) s
+48 147 M
+(            if \(pos != std::string::npos\) {) s
+24 136 M (94:) s
+48 136 M
+(                service_1 = finder;) s
+24 125 M (95:) s
+48 125 M
+(                out << line_number;) s
+24 114 M (96:) s
+48 114 M
+(                service_start.at\(i\) = out.str\(\);) s
+24 103 M (97:) s
+48 103 M
+(                break;) s
+24 92 M (98:) s
+48 92 M
+(              }) s
+24 81 M (99:) s
+48 81 M
+(          }) s
+18 70 M (100:) s
+48 70 M
+(      }) s
+18 59 M (101:) s
+18 48 M (102:) s
+48 48 M
+(    if \(boost::regex_match\(t, start_up\) &&) s
+18 37 M (103:) s
+48 37 M
+(        boost::regex_match\(s, service_success\)\) {) s
+18 26 M (104:) s
+48 26 M
+(        std::stringstream out;) s
+18 15 M (105:) s
+48 15 M
+(        unsigned int i = 0;) s
+18 4 M (106:) s
+_R
+S
+%%Page: (3) 3
+%%BeginPageSetup
+_S
+50 50 translate
+/pagenum 3 def
+/fname (main.cpp) def
+/fdir (.) def
+/ftail (main.cpp) def
+% User defined strings:
+/fmodstr (Tue Apr 18 16:10:56 2017) def
+/pagenumstr (3) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+do_header
+18 664 M (107:) s
+48 664 M
+(            for \(i = 0; i < service_name.size\(\); i++\) {) s
+18 653 M (108:) s
+48 653 M
+(                std::string finder = service_name.at\(i\);) s
+18 642 M (109:) s
+48 642 M
+(                std::size_t pos = s.find\(finder\);) s
+18 631 M (110:) s
+48 631 M
+(                // if \(service_1 == service_name.at\(i\)\)) s
+18 620 M (111:) s
+48 620 M
+(                if \(pos != std::string::npos &&) s
+18 609 M (112:) s
+48 609 M
+(                    \(service_start.at\(i\) != "Not started"\)\) {) s
+18 598 M (113:) s
+48 598 M
+(                    out << line_number;) s
+18 587 M (114:) s
+48 587 M
+(                    service_end.at\(i\) = out.str\(\);) s
+18 576 M (115:) s
+18 565 M (116:) s
+48 565 M
+(                    // grab elapsed time) s
+18 554 M (117:) s
+48 554 M
+(                    std::size_t my_start = 0;) s
+18 543 M (118:) s
+48 543 M
+(                    std::size_t my_end = 0;) s
+18 532 M (119:) s
+48 532 M
+(                    std::string ela_time;) s
+18 521 M (120:) s
+18 510 M (121:) s
+48 510 M
+(                    my_start = s.find\("\("\);) s
+18 499 M (122:) s
+48 499 M
+(                    if \(my_start != std::string::npos\) {) s
+18 488 M (123:) s
+48 488 M
+(                        ++my_start;) s
+18 477 M (124:) s
+48 477 M
+(                        my_end = s.find\("\)"\);) s
+18 466 M (125:) s
+48 466 M
+(                        if \(my_end != std::string::npos\) {) s
+18 455 M (126:) s
+48 455 M
+(                            ela_time = s.substr\(my_start, my_end - my_start\)) s
+5 444 M
+(;) s
+18 433 M (127:) s
+48 433 M
+(                          }) s
+18 422 M (128:) s
+48 422 M
+(                      }) s
+18 411 M (129:) s
+48 411 M
+(                    service_elapsed_time.at\(i\) = ela_time;) s
+18 400 M (130:) s
+48 400 M
+(                    break;) s
+18 389 M (131:) s
+48 389 M
+(                  }) s
+18 378 M (132:) s
+48 378 M
+(              }) s
+18 367 M (133:) s
+48 367 M
+(      }) s
+18 356 M (134:) s
+48 356 M
+(     // end of service startup) s
+18 345 M (135:) s
+18 334 M (136:) s
+48 334 M
+(    // start of software upgrades) s
+18 323 M (137:) s
+18 312 M (138:) s
+48 312 M
+(    if \(boost::regex_match\(s, soft_start\)\) {) s
+18 301 M (139:) s
+48 301 M
+(        str_start = s;) s
+18 290 M (140:) s
+48 290 M
+(        start_line = line_number;) s
+18 279 M (141:) s
+48 279 M
+(      }) s
+18 268 M (142:) s
+48 268 M
+(    if \(boost::regex_match\(s, soft_end\)\) {) s
+18 257 M (143:) s
+48 257 M
+(        str_end = s;) s
+18 246 M (144:) s
+48 246 M
+(      }) s
+18 235 M (145:) s
+48 235 M
+(    if \(boost::regex_match\(s, soft_orig\)\) {) s
+18 224 M (146:) s
+48 224 M
+(        str_orig_ver = s;) s
+18 213 M (147:) s
+48 213 M
+(      }) s
+18 202 M (148:) s
+48 202 M
+(    if \(boost::regex_match\(s, soft_new_ver\)\) {) s
+18 191 M (149:) s
+48 191 M
+(        str_new_ver = s;) s
+18 180 M (150:) s
+48 180 M
+(      }) s
+18 169 M (151:) s
+18 158 M (152:) s
+48 158 M
+(    if \(str_start != " " && str_end != " " &&) s
+18 147 M (153:) s
+48 147 M
+(        str_orig_ver != " " && str_new_ver != " "\) {) s
+18 136 M (154:) s
+48 136 M
+(        // get elapsed time vars) s
+18 125 M (155:) s
+48 125 M
+(        std::string my_time_start = str_start.substr\(0, 15\);) s
+18 114 M (156:) s
+48 114 M
+(        std::string my_time_end = str_end.substr\(0, 15\);) s
+18 103 M (157:) s
+18 92 M (158:) s
+48 92 M
+(        int w, x, y;) s
+18 81 M (159:) s
+18 70 M (160:) s
+48 70 M
+(        w = atoi\(\(my_time_start.substr\(7, 2\)\).c_str\(\)\);) s
+18 59 M (161:) s
+48 59 M
+(        x = atoi\(\(my_time_start.substr\(10, 2\)\).c_str\(\)\);) s
+18 48 M (162:) s
+48 48 M
+(        y = atoi\(\(my_time_start.substr\(13, 2\)\).c_str\(\)\);) s
+18 37 M (163:) s
+18 26 M (164:) s
+48 26 M
+(        boost::posix_time::time_duration time_to_start\(w, x, y, 0\);) s
+18 15 M (165:) s
+18 4 M (166:) s
+48 4 M
+(        w = atoi\(\(my_time_end.substr\(7, 2\)\).c_str\(\)\);) s
+_R
+S
+%%Page: (4) 4
+%%BeginPageSetup
+_S
+50 50 translate
+/pagenum 4 def
+/fname (main.cpp) def
+/fdir (.) def
+/ftail (main.cpp) def
+% User defined strings:
+/fmodstr (Tue Apr 18 16:10:56 2017) def
+/pagenumstr (4) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+do_header
+18 664 M (167:) s
+48 664 M
+(        x = atoi\(\(my_time_end.substr\(10, 2\)\).c_str\(\)\);) s
+18 653 M (168:) s
+48 653 M
+(        y = atoi\(\(my_time_end.substr\(13, 2\)\).c_str\(\)\);) s
+18 642 M (169:) s
+18 631 M (170:) s
+48 631 M
+(        boost::posix_time::time_duration time_to_end\(w, x, y, 0\);) s
+18 620 M (171:) s
+48 620 M
+(        boost::posix_time::time_duration my_diff;) s
+18 609 M (172:) s
+48 609 M
+(        my_diff = time_to_end - time_to_start;) s
+18 598 M (173:) s
+18 587 M (174:) s
+48 587 M
+(        // clean up orig_ver and new_ver) s
+18 576 M (175:) s
+48 576 M
+(        // grab orig) s
+18 565 M (176:) s
+48 565 M
+(        std::size_t my_start = 0;) s
+18 554 M (177:) s
+48 554 M
+(        std::size_t my_end = 0;) s
+18 543 M (178:) s
+48 543 M
+(        std::string temp;) s
+18 532 M (179:) s
+18 521 M (180:) s
+48 521 M
+(        my_start = str_orig_ver.find\("base-"\);) s
+18 510 M (181:) s
+48 510 M
+(        if \(my_start != std::string::npos\) {) s
+18 499 M (182:) s
+48 499 M
+(          my_start+=5;) s
+18 488 M (183:) s
+48 488 M
+(          my_end = str_orig_ver.find\("armv6"\);) s
+18 477 M (184:) s
+48 477 M
+(          if \(my_end != std::string::npos\) {) s
+18 466 M (185:) s
+48 466 M
+(            temp = str_orig_ver.substr\(my_start, \(my_end - my_start\) - 1\);) s
+18 455 M (186:) s
+48 455 M
+(          }) s
+18 444 M (187:) s
+48 444 M
+(        }) s
+18 433 M (188:) s
+48 433 M
+(        str_orig_ver = temp;) s
+18 422 M (189:) s
+18 411 M (190:) s
+48 411 M
+(        // now grab new) s
+18 400 M (191:) s
+48 400 M
+(        my_start = 0;) s
+18 389 M (192:) s
+48 389 M
+(        my_end = 0;) s
+18 378 M (193:) s
+18 367 M (194:) s
+48 367 M
+(        my_start = str_new_ver.find\("base-"\);) s
+18 356 M (195:) s
+48 356 M
+(        if \(my_start != std::string::npos\) {) s
+18 345 M (196:) s
+48 345 M
+(          my_start+=5;) s
+18 334 M (197:) s
+48 334 M
+(          my_end = str_new_ver.find\("armv6"\);) s
+18 323 M (198:) s
+48 323 M
+(          if \(my_end != std::string::npos\) {) s
+18 312 M (199:) s
+48 312 M
+(            temp = str_new_ver.substr\(my_start, \(my_end - my_start\) - 1\);) s
+18 301 M (200:) s
+48 301 M
+(          }) s
+18 290 M (201:) s
+48 290 M
+(        }) s
+18 279 M (202:) s
+48 279 M
+(        str_new_ver = temp;) s
+18 268 M (203:) s
+18 257 M (204:) s
+48 257 M
+(        // print out) s
+18 246 M (205:) s
+48 246 M
+(        fout << "=== Softload ===" << std::endl;) s
+18 235 M (206:) s
+48 235 M
+(        fout << start_line << "\(" << input_file << "\) : ") s
+18 224 M (207:) s
+48 224 M
+(             << str_start.substr\(0, 15\) << " Softload Start" << std::endl;) s
+18 213 M (208:) s
+48 213 M
+(        fout << "\\tOriginal version ==> " << str_orig_ver << std::endl;) s
+18 202 M (209:) s
+48 202 M
+(        fout << "\\tNew version ==> " << str_new_ver << std::endl;) s
+18 191 M (210:) s
+48 191 M
+(        fout << "\\tElapsed time \(sec\) ==> " << my_diff.total_seconds\(\)) s
+18 180 M (211:) s
+48 180 M
+(             << std::endl;) s
+18 169 M (212:) s
+48 169 M
+(        fout << line_number << "\(" << input_file << "\) : ") s
+18 158 M (213:) s
+48 158 M
+(             << str_end.substr\(0, 15\) << " Softload Completed" << std::endl;) s
+18 147 M (214:) s
+48 147 M
+(        str_start = " ";) s
+18 136 M (215:) s
+48 136 M
+(        str_end = " ";) s
+18 125 M (216:) s
+48 125 M
+(        str_orig_ver = " ";) s
+18 114 M (217:) s
+48 114 M
+(        str_new_ver = " ";) s
+18 103 M (218:) s
+48 103 M
+(      }) s
+18 92 M (219:) s
+18 81 M (220:) s
+48 81 M
+(    // end of software upgrades) s
+18 70 M (221:) s
+18 59 M (222:) s
+48 59 M
+(      if \(boost::regex_match\(t, start_up\) && boost::regex_match\(s, success\)\)) s
+5 48 M
+( {) s
+18 37 M (223:) s
+48 37 M
+(          // success) s
+18 26 M (224:) s
+48 26 M
+(          fout << line_number << "\(" << input_file << "\): " << s.substr\(0, 1) s
+5 15 M
+(9\)) s
+18 4 M (225:) s
+48 4 M
+(               << " Boot Completed" << std::endl;) s
+_R
+S
+%%Page: (5) 5
+%%BeginPageSetup
+_S
+50 50 translate
+/pagenum 5 def
+/fname (main.cpp) def
+/fdir (.) def
+/ftail (main.cpp) def
+% User defined strings:
+/fmodstr (Tue Apr 18 16:10:56 2017) def
+/pagenumstr (5) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+do_header
+18 664 M (226:) s
+48 664 M
+(          // boot time) s
+18 653 M (227:) s
+48 653 M
+(          time_end = s.substr\(0, 19\);) s
+18 642 M (228:) s
+48 642 M
+(          boost::posix_time::ptime start =) s
+18 631 M (229:) s
+48 631 M
+(            boost::posix_time::time_from_string\(time_start\);) s
+18 620 M (230:) s
+48 620 M
+(          boost::posix_time::ptime end =) s
+18 609 M (231:) s
+48 609 M
+(            boost::posix_time::time_from_string\(time_end\);) s
+18 598 M (232:) s
+48 598 M
+(          diff = end - start;) s
+18 587 M (233:) s
+48 587 M
+(          fout << "\\tBoot Time: " << diff.total_milliseconds\(\) << "ms") s
+18 576 M (234:) s
+48 576 M
+(               << std::endl;) s
+18 565 M (235:) s
+48 565 M
+(          fout << std::endl;) s
+18 554 M (236:) s
+48 554 M
+(          t = "empty";) s
+18 543 M (237:) s
+18 532 M (238:) s
+48 532 M
+(          // service printout) s
+18 521 M (239:) s
+48 521 M
+(          print_stats\(service_name, service_start, service_end,) s
+18 510 M (240:) s
+48 510 M
+(                      service_elapsed_time, fout, fin, input_file\);) s
+18 499 M (241:) s
+18 488 M (242:) s
+48 488 M
+(        } else if \(boost::regex_match\(t, start_up\) &&) s
+18 477 M (243:) s
+48 477 M
+(               boost::regex_match\(s, start_up\)\) {) s
+18 466 M (244:) s
+48 466 M
+(          // failure) s
+18 455 M (245:) s
+48 455 M
+(          fout << "**** Incomplete boot ****" << std::endl;) s
+18 444 M (246:) s
+48 444 M
+(          fout << std::endl;) s
+18 433 M (247:) s
+48 433 M
+(          t = "empty";) s
+18 422 M (248:) s
+18 411 M (249:) s
+48 411 M
+(          // service printout) s
+18 400 M (250:) s
+48 400 M
+(          print_stats\(service_name, service_start, service_end,) s
+18 389 M (251:) s
+48 389 M
+(                      service_elapsed_time, fout, fin, input_file\);) s
+18 378 M (252:) s
+48 378 M
+(        }) s
+18 367 M (253:) s
+18 356 M (254:) s
+48 356 M
+(        if \(boost::regex_match\(s, start_up\)\) {) s
+18 345 M (255:) s
+48 345 M
+(          fout << "=== Device boot ===" << std::endl;) s
+18 334 M (256:) s
+48 334 M
+(          fout << line_number << "\(" << input_file << "\): " << s.substr\(0, 1) s
+5 323 M
+(9\)) s
+18 312 M (257:) s
+48 312 M
+(               << " Boot Start" << std::endl;) s
+18 301 M (258:) s
+48 301 M
+(          time_start = s.substr\(0, 19\);) s
+18 290 M (259:) s
+48 290 M
+(          t = s;) s
+18 279 M (260:) s
+18 268 M (261:) s
+48 268 M
+(          // service startup) s
+18 257 M (262:) s
+48 257 M
+(          populate_vectors\(service_name, service_start, service_end,) s
+18 246 M (263:) s
+48 246 M
+(                   service_elapsed_time\);) s
+18 235 M (264:) s
+48 235 M
+(        }) s
+18 224 M (265:) s
+48 224 M
+(      std::getline\(fin, s\);) s
+18 213 M (266:) s
+48 213 M
+(      line_number++;) s
+18 202 M (267:) s
+48 202 M
+(    }) s
+18 191 M (268:) s
+18 180 M (269:) s
+48 180 M
+(  fin.close\(\);) s
+18 169 M (270:) s
+48 169 M
+(  fout.close\(\);) s
+18 158 M (271:) s
+18 147 M (272:) s
+48 147 M
+(  return 0;) s
+18 136 M (273:) s
+48 136 M
+(}) s
+18 125 M (274:) s
+18 114 M (275:) s
+48 114 M
+(void populate_vectors\(std::vector<std::string>& a, std::vector<std::string>&) s
+5 103 M
+( b,) s
+18 92 M (276:) s
+48 92 M
+(                     std::vector<std::string>& c, std::vector<std::string>& ) s
+5 81 M
+(d\) {) s
+18 70 M (277:) s
+48 70 M
+(  a.push_back\(" Logging"\);) s
+18 59 M (278:) s
+48 59 M
+(  b.push_back\("Not started"\);) s
+18 48 M (279:) s
+48 48 M
+(  c.push_back\("Not completed"\);) s
+18 37 M (280:) s
+48 37 M
+(  d.push_back\(""\);) s
+18 26 M (281:) s
+18 15 M (282:) s
+48 15 M
+(  a.push_back\(" DatabaseInitialize"\);) s
+18 4 M (283:) s
+48 4 M
+(  b.push_back\("Not started"\);) s
+_R
+S
+%%Page: (6) 6
+%%BeginPageSetup
+_S
+50 50 translate
+/pagenum 6 def
+/fname (main.cpp) def
+/fdir (.) def
+/ftail (main.cpp) def
+% User defined strings:
+/fmodstr (Tue Apr 18 16:10:56 2017) def
+/pagenumstr (6) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+do_header
+18 664 M (284:) s
+48 664 M
+(  c.push_back\("Not completed"\);) s
+18 653 M (285:) s
+48 653 M
+(  d.push_back\(""\);) s
+18 642 M (286:) s
+18 631 M (287:) s
+48 631 M
+(  a.push_back\(" MessagingService"\);) s
+18 620 M (288:) s
+48 620 M
+(  b.push_back\("Not started"\);) s
+18 609 M (289:) s
+48 609 M
+(  c.push_back\("Not completed"\);) s
+18 598 M (290:) s
+48 598 M
+(  d.push_back\(""\);) s
+18 587 M (291:) s
+18 576 M (292:) s
+48 576 M
+(  a.push_back\(" HealthMonitorService"\);) s
+18 565 M (293:) s
+48 565 M
+(  b.push_back\("Not started"\);) s
+18 554 M (294:) s
+48 554 M
+(  c.push_back\("Not completed"\);) s
+18 543 M (295:) s
+48 543 M
+(  d.push_back\(""\);) s
+18 532 M (296:) s
+18 521 M (297:) s
+48 521 M
+(  a.push_back\(" Persistence"\);) s
+18 510 M (298:) s
+48 510 M
+(  b.push_back\("Not started"\);) s
+18 499 M (299:) s
+48 499 M
+(  c.push_back\("Not completed"\);) s
+18 488 M (300:) s
+48 488 M
+(  d.push_back\(""\);) s
+18 477 M (301:) s
+18 466 M (302:) s
+48 466 M
+(  a.push_back\(" ConfigurationService"\);) s
+18 455 M (303:) s
+48 455 M
+(  b.push_back\("Not started"\);) s
+18 444 M (304:) s
+48 444 M
+(  c.push_back\("Not completed"\);) s
+18 433 M (305:) s
+48 433 M
+(  d.push_back\(""\);) s
+18 422 M (306:) s
+18 411 M (307:) s
+48 411 M
+(  a.push_back\(" LandingPadService"\);) s
+18 400 M (308:) s
+48 400 M
+(  b.push_back\("Not started"\);) s
+18 389 M (309:) s
+48 389 M
+(  c.push_back\("Not completed"\);) s
+18 378 M (310:) s
+48 378 M
+(  d.push_back\(""\);) s
+18 367 M (311:) s
+18 356 M (312:) s
+48 356 M
+(  a.push_back\(" PortConfigurationService"\);) s
+18 345 M (313:) s
+48 345 M
+(  b.push_back\("Not started"\);) s
+18 334 M (314:) s
+48 334 M
+(  c.push_back\("Not completed"\);) s
+18 323 M (315:) s
+48 323 M
+(  d.push_back\(""\);) s
+18 312 M (316:) s
+18 301 M (317:) s
+48 301 M
+(  a.push_back\(" CacheService"\);) s
+18 290 M (318:) s
+48 290 M
+(  b.push_back\("Not started"\);) s
+18 279 M (319:) s
+48 279 M
+(  c.push_back\("Not completed"\);) s
+18 268 M (320:) s
+48 268 M
+(  d.push_back\(""\);) s
+18 257 M (321:) s
+18 246 M (322:) s
+48 246 M
+(  a.push_back\(" ThemingService"\);) s
+18 235 M (323:) s
+48 235 M
+(  b.push_back\("Not started"\);) s
+18 224 M (324:) s
+48 224 M
+(  c.push_back\("Not completed"\);) s
+18 213 M (325:) s
+48 213 M
+(  d.push_back\(""\);) s
+18 202 M (326:) s
+18 191 M (327:) s
+48 191 M
+(  a.push_back\(" StagingService"\);) s
+18 180 M (328:) s
+48 180 M
+(  b.push_back\("Not started"\);) s
+18 169 M (329:) s
+48 169 M
+(  c.push_back\("Not completed"\);) s
+18 158 M (330:) s
+48 158 M
+(  d.push_back\(""\);) s
+18 147 M (331:) s
+18 136 M (332:) s
+48 136 M
+(  a.push_back\(" DeviceIOService"\);) s
+18 125 M (333:) s
+48 125 M
+(  b.push_back\("Not started"\);) s
+18 114 M (334:) s
+48 114 M
+(  c.push_back\("Not completed"\);) s
+18 103 M (335:) s
+48 103 M
+(  d.push_back\(""\);) s
+18 92 M (336:) s
+18 81 M (337:) s
+48 81 M
+(  a.push_back\(" BellService"\);) s
+18 70 M (338:) s
+48 70 M
+(  b.push_back\("Not started"\);) s
+18 59 M (339:) s
+48 59 M
+(  c.push_back\("Not completed"\);) s
+18 48 M (340:) s
+48 48 M
+(  d.push_back\(""\);) s
+18 37 M (341:) s
+18 26 M (342:) s
+48 26 M
+(  a.push_back\(" GateService"\);) s
+18 15 M (343:) s
+48 15 M
+(  b.push_back\("Not started"\);) s
+18 4 M (344:) s
+48 4 M
+(  c.push_back\("Not completed"\);) s
+_R
+S
+%%Page: (7) 7
+%%BeginPageSetup
+_S
+50 50 translate
+/pagenum 7 def
+/fname (main.cpp) def
+/fdir (.) def
+/ftail (main.cpp) def
+% User defined strings:
+/fmodstr (Tue Apr 18 16:10:56 2017) def
+/pagenumstr (7) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+do_header
+18 664 M (345:) s
+48 664 M
+(  d.push_back\(""\);) s
+18 653 M (346:) s
+18 642 M (347:) s
+48 642 M
+(  a.push_back\(" ReaderDataService"\);) s
+18 631 M (348:) s
+48 631 M
+(  b.push_back\("Not started"\);) s
+18 620 M (349:) s
+48 620 M
+(  c.push_back\("Not completed"\);) s
+18 609 M (350:) s
+48 609 M
+(  d.push_back\(""\);) s
+18 598 M (351:) s
+18 587 M (352:) s
+48 587 M
+(  a.push_back\(" BiometricService"\);) s
+18 576 M (353:) s
+48 576 M
+(  b.push_back\("Not started"\);) s
+18 565 M (354:) s
+48 565 M
+(  c.push_back\("Not completed"\);) s
+18 554 M (355:) s
+48 554 M
+(  d.push_back\(""\);) s
+18 543 M (356:) s
+18 532 M (357:) s
+48 532 M
+(  a.push_back\(" StateManager"\);) s
+18 521 M (358:) s
+48 521 M
+(  b.push_back\("Not started"\);) s
+18 510 M (359:) s
+48 510 M
+(  c.push_back\("Not completed"\);) s
+18 499 M (360:) s
+48 499 M
+(  d.push_back\(""\);) s
+18 488 M (361:) s
+18 477 M (362:) s
+48 477 M
+(  a.push_back\(" OfflineSmartviewService"\);) s
+18 466 M (363:) s
+48 466 M
+(  b.push_back\("Not started"\);) s
+18 455 M (364:) s
+48 455 M
+(  c.push_back\("Not completed"\);) s
+18 444 M (365:) s
+48 444 M
+(  d.push_back\(""\);) s
+18 433 M (366:) s
+18 422 M (367:) s
+48 422 M
+(  a.push_back\(" AVFeedbackService"\);) s
+18 411 M (368:) s
+48 411 M
+(  b.push_back\("Not started"\);) s
+18 400 M (369:) s
+48 400 M
+(  c.push_back\("Not completed"\);) s
+18 389 M (370:) s
+48 389 M
+(  d.push_back\(""\);) s
+18 378 M (371:) s
+18 367 M (372:) s
+48 367 M
+(  a.push_back\(" DatabaseThreads"\);) s
+18 356 M (373:) s
+48 356 M
+(  b.push_back\("Not started"\);) s
+18 345 M (374:) s
+48 345 M
+(  c.push_back\("Not completed"\);) s
+18 334 M (375:) s
+48 334 M
+(  d.push_back\(""\);) s
+18 323 M (376:) s
+18 312 M (377:) s
+48 312 M
+(  a.push_back\(" SoftLoadService"\);) s
+18 301 M (378:) s
+48 301 M
+(  b.push_back\("Not started"\);) s
+18 290 M (379:) s
+48 290 M
+(  c.push_back\("Not completed"\);) s
+18 279 M (380:) s
+48 279 M
+(  d.push_back\(""\);) s
+18 268 M (381:) s
+18 257 M (382:) s
+48 257 M
+(  a.push_back\(" WATCHDOG"\);) s
+18 246 M (383:) s
+48 246 M
+(  b.push_back\("Not started"\);) s
+18 235 M (384:) s
+48 235 M
+(  c.push_back\("Not completed"\);) s
+18 224 M (385:) s
+48 224 M
+(  d.push_back\(""\);) s
+18 213 M (386:) s
+18 202 M (387:) s
+48 202 M
+(  a.push_back\(" ProtocolService"\);) s
+18 191 M (388:) s
+48 191 M
+(  b.push_back\("Not started"\);) s
+18 180 M (389:) s
+48 180 M
+(  c.push_back\("Not completed"\);) s
+18 169 M (390:) s
+48 169 M
+(  d.push_back\(""\);) s
+18 158 M (391:) s
+18 147 M (392:) s
+48 147 M
+(  a.push_back\(" DiagnosticsService"\);) s
+18 136 M (393:) s
+48 136 M
+(  b.push_back\("Not started"\);) s
+18 125 M (394:) s
+48 125 M
+(  c.push_back\("Not completed"\);) s
+18 114 M (395:) s
+48 114 M
+(  d.push_back\(""\);) s
+18 103 M (396:) s
+48 103 M
+(}) s
+18 92 M (397:) s
+18 81 M (398:) s
+48 81 M
+(void print_stats\(std::vector<std::string>& a, std::vector<std::string>& b,) s
+18 70 M (399:) s
+48 70 M
+(                 std::vector<std::string>& c, std::vector<std::string>& d,) s
+18 59 M (400:) s
+48 59 M
+(                 std::ofstream& fout, std::ifstream& fin, std::string name\) ) s
+5 48 M
+({) s
+18 37 M (401:) s
+48 37 M
+(  std::vector<std::string> boot_failures;) s
+18 26 M (402:) s
+48 26 M
+(  unsigned int my_size = a.size\(\);) s
+18 15 M (403:) s
+18 4 M (404:) s
+48 4 M
+(  fout << "Services" << std::endl;) s
+_R
+S
+%%Page: (8) 8
+%%BeginPageSetup
+_S
+50 50 translate
+/pagenum 8 def
+/fname (main.cpp) def
+/fdir (.) def
+/ftail (main.cpp) def
+% User defined strings:
+/fmodstr (Tue Apr 18 16:10:56 2017) def
+/pagenumstr (8) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+do_header
+18 664 M (405:) s
+18 653 M (406:) s
+48 653 M
+(  for \(unsigned int i = 0; i < my_size; i++\) {) s
+18 642 M (407:) s
+48 642 M
+(      a.at\(i\).erase\(0, 1\);) s
+18 631 M (408:) s
+48 631 M
+(      fout << "\\t" << a.at\(i\) << std::endl;) s
+18 620 M (409:) s
+48 620 M
+(      fout << "\\t\\tStart: " << b.at\(i\)) s
+18 609 M (410:) s
+48 609 M
+(           << "\(" << name << "\)" << std::endl;) s
+18 598 M (411:) s
+48 598 M
+(      fout << "\\t\\tCompleted: " << c.at\(i\)) s
+18 587 M (412:) s
+48 587 M
+(           << "\(" << name << "\)" <<  std::endl;) s
+18 576 M (413:) s
+48 576 M
+(      if \(c.at\(i\) == "Not completed"\) {) s
+18 565 M (414:) s
+48 565 M
+(          boot_failures.push_back\(a.at\(i\)\);) s
+18 554 M (415:) s
+48 554 M
+(        }) s
+18 543 M (416:) s
+48 543 M
+(      fout << "\\t\\tElapsed Time: " << d.at\(i\) << std::endl;) s
+18 532 M (417:) s
+48 532 M
+(    }) s
+18 521 M (418:) s
+48 521 M
+(  if \(boot_failures.size\(\) > 0\) {) s
+18 510 M (419:) s
+48 510 M
+(      fout << "\\t*** Services not successfully started: ";) s
+18 499 M (420:) s
+48 499 M
+(      for \(unsigned int i = 0; i < boot_failures.size\(\); i++\) {) s
+18 488 M (421:) s
+48 488 M
+(          if \(i != \(boot_failures.size\(\) - 1\)\) {) s
+18 477 M (422:) s
+48 477 M
+(              fout << boot_failures.at\(i\) << ", ";) s
+18 466 M (423:) s
+48 466 M
+(            } else {) s
+18 455 M (424:) s
+48 455 M
+(              fout << boot_failures.at\(i\) << std::endl;) s
+18 444 M (425:) s
+48 444 M
+(            }) s
+18 433 M (426:) s
+48 433 M
+(        }) s
+18 422 M (427:) s
+48 422 M
+(    }) s
+18 411 M (428:) s
+48 411 M
+(  a.clear\(\);) s
+18 400 M (429:) s
+48 400 M
+(  b.clear\(\);) s
+18 389 M (430:) s
+48 389 M
+(  c.clear\(\);) s
+18 378 M (431:) s
+48 378 M
+(  d.clear\(\);) s
+18 367 M (432:) s
+48 367 M
+(}) s
+_R
+S
+%%Trailer
+%%Pages: 8
+%%DocumentNeededResources: font Courier-Bold Courier 
+%%EOF
