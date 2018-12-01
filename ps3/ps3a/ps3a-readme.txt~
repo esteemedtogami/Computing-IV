@@ -1,0 +1,49 @@
+/**********************************************************************
+ *  N-Body Simulation ps3a-readme.txt template
+ **********************************************************************/
+
+Name: Sam Pickell
+OS: Ubuntu 16.04
+Machine (e.g., Dell Latitude, MacBook Pro): MacBook Pro
+Text editor: emacs
+Hours to complete assignment (optional): 7 hours 23 minutes
+
+/**********************************************************************
+ *  Briefly explain the workings of the features you implemented.
+ *  Include code excerpts.
+**********************************************************************/
+
+In main.cpp:
+
+//This is where the body object's data is set up. For each body object,
+//   a line of data is read in via the overloaded insertion operator,
+//   the object then gains the neccessary universe and screen sizes,
+//   and then the object is moved to the correct location on the
+//   screen based on scaled coordinates
+
+  for(int i = 0; i < number_of_bodies; i++)
+    {
+      std::cin >> (*(v_bodies.at(i)));
+      v_bodies.at(i)->set_radius(universe_size);
+      v_bodies.at(i)->set_window(size.x);
+      v_bodies.at(i)->update_pixel_pos();
+    }
+
+In Body.cpp:
+
+
+
+/**********************************************************************
+ *  List whatever help (if any) you received from the instructor,
+ *  classmates, or anyone else.
+ **********************************************************************/
+
+
+/**********************************************************************
+ *  Describe any serious problems you encountered.                    
+ **********************************************************************/
+
+
+/**********************************************************************
+ *  List any other comments here.                                     
+ **********************************************************************/
